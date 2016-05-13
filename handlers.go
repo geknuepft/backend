@@ -77,3 +77,17 @@ func TodoCreate(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 }
+
+func ArticleIndex(w http.ResponseWriter, r *http.Request) {
+	articles := GetArticles()
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	//if err := json.NewEncoder(w).Encode(articles); err != nil {
+
+	b, err := json.MarshalIndent(articles, "", "    ")
+	if err != nil {
+		panic(err)
+	}
+	w.Write(b)
+}
