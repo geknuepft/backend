@@ -56,11 +56,13 @@ func GetArticles() (articles Articles) {
 	}
 	defer rows.Close()
 
+	var picturePrefixes = [...]string{"rma0", "rmi0"}
+
 	for rows.Next() {
 		var a Article
 
 		var created rawTime
-		var picturePrefixes = [...]string{"rma0", "rmi0"}
+
 		var pictures [2]sql.NullString
 
 		err := rows.Scan(&a.Id, &a.Name, &created, &pictures[0], &pictures[1])
@@ -69,12 +71,14 @@ func GetArticles() (articles Articles) {
 		}
 
 		a.Created = created.Time()
-
-		//a.Pictures = append(a.Pictures, )
+		a.Pictures = make(PictureMap)
 
 		for i, p := range pictures {
 			if p.Valid {
-				a.Pictures = append(a.Pictures, picturePrefixes[i]+"/"+strings.Trim(p.String, "\n\r "))
+				a.Pictures[picturePrefixes[i]] = Picture{
+					Path: strings.Trim(p.String, "\n\r "),
+					Type: picturePrefixes[i],
+				}
 			}
 		}
 		articles = append(articles, a)
