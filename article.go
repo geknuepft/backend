@@ -5,9 +5,10 @@ import (
 )
 
 type Article struct {
-	Id      int       `json:"article_id"`
-	Name    string    `json:"name"`
-	Created time.Time `json:"created"`
+	Id       int       `json:"article_id"`
+	Name     string    `json:"name"`
+	Created  time.Time `json:"created"`
+	Pictures []string  `json:"pictures"`
 }
 
 type Articles []Article

@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"strings"
 
 	"time"
 
@@ -14,7 +15,7 @@ var Db *sql.DB
 func init() {
 	var err error
 
-	Db, err = sql.Open("mysql", "geknuepft:Er3cof4iesho@tcp(dc_mysql-server.docker.:3306)/geknuepft")
+	Db, err = sql.Open("mysql", "geknuepft:Er3cof4iesho@tcp(172.17.0.2:3306)/geknuepft")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -38,11 +39,17 @@ func (t rawTime) Time() time.Time {
 
 func GetArticles() (articles Articles) {
 	rows, err := Db.Query(
-		`SELECT article_id,
-		COALESCE(article_name_de, ''),
-		created
-		FROM article
-		WHERE article_id`)
+		`SELECT a.article_id,
+		COALESCE(a.article_name_de, ''),
+		a.created,
+		i0.path p0,
+		i1.path p1
+		FROM article a
+		JOIN image_type it0 ON(it0.abbr = 'rma0')
+		LEFT JOIN image i0 ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
+		JOIN image_type it1 ON(it1.abbr = 'rmi0')
+		LEFT JOIN image i1 ON(i1.article_id = a.article_id AND i1.image_type_id = it1.image_type_id)
+		ORDER BY a.created DESC`)
 
 	if err != nil {
 		panic(err.Error())
@@ -53,14 +60,23 @@ func GetArticles() (articles Articles) {
 		var a Article
 
 		var created rawTime
+		var picturePrefixes = [...]string{"rma0", "rmi0"}
+		var pictures [2]sql.NullString
 
-		err := rows.Scan(&a.Id, &a.Name, &created)
+		err := rows.Scan(&a.Id, &a.Name, &created, &pictures[0], &pictures[1])
 		if err != nil {
 			panic(err.Error())
 		}
 
 		a.Created = created.Time()
 
+		//a.Pictures = append(a.Pictures, )
+
+		for i, p := range pictures {
+			if p.Valid {
+				a.Pictures = append(a.Pictures, picturePrefixes[i]+"/"+strings.Trim(p.String, "\n\r "))
+			}
+		}
 		articles = append(articles, a)
 	}
 
