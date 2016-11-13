@@ -50,17 +50,17 @@ func GetArticles() (articles Articles) {
         a.created,
         i0.path p0,
         -- instance fields
-        i.instance_id
-        -- i.length_mm,
-        -- i.width_mm,
-        -- i.height_mm,
-        -- i.price_cchf,
-        -- ic.collection_de
+        i.instance_id,
+        i.length_mm,
+        i.width_mm,
+        i.height_mm,
+        i.price_cchf,
+        ic.collection_de
         FROM article a
         JOIN image_type it0 ON(it0.abbr = 'cma0')
         JOIN image i0 ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
-        JOIN instance i ON(i.article_id = a.article_id)
-        JOIN collection ic ON(ic.collection_id = i.collection_id)
+        LEFT JOIN instance i ON(i.article_id = a.article_id)
+        LEFT JOIN collection ic ON(ic.collection_id = i.collection_id)
         GROUP BY a.article_id -- in case an article has >1 cma0
         ORDER BY a.created DESC`
 
@@ -82,7 +82,8 @@ func GetArticles() (articles Articles) {
 
         var pictures [1]sql.NullString
 
-        err := rows.Scan(&a.Id, &a.Name, &created, &pictures[0], &a.InstanceId)
+        err := rows.Scan(&a.Id, &a.Name, &created, &pictures[0], &a.InstanceId, &a.LengthMm,
+			&a.WidthMm, &a.HeightMm, &a.PriceCchf, &a.CollectionDe)
         if err != nil {
             panic(err.Error())
         }
