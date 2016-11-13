@@ -1,27 +1,27 @@
 package main
 
 import (
-	"database/sql"
-	"strings"
+    "database/sql"
+    "strings"
+    "log"
+    "time"
 
-	"time"
-
-	_ "github.com/go-sql-driver/mysql"
+    _ "github.com/go-sql-driver/mysql"
 )
 
 func getDb() *sql.DB {
-	var err error
+    var err error
     var Db *sql.DB
 
-	Db, err = sql.Open("mysql", "geknuepft:Er3cof4iesho@tcp(mysql-server:3306)/geknuepft")
-	if err != nil {
-		panic(err.Error())
-	}
+    Db, err = sql.Open("mysql", "geknuepft:Er3cof4iesho@tcp(mysql-server:3306)/geknuepft")
+    if err != nil {
+        panic(err.Error())
+    }
 
-	err = Db.Ping()
-	if err != nil {
-		panic(err.Error())
-	}
+    err = Db.Ping()
+    if err != nil {
+        panic(err.Error())
+    }
 
     return Db
 }
@@ -29,63 +29,77 @@ func getDb() *sql.DB {
 type rawTime []byte
 
 func (t rawTime) Time() time.Time {
-	time, err := time.Parse("2006-01-02 15:04:05", string(t))
-	if err != nil {
-		panic(err.Error())
-	}
-	return time
+    time, err := time.Parse("2006-01-02 15:04:05", string(t))
+    if err != nil {
+        panic(err.Error())
+    }
+    return time
 }
 
 func GetArticles() (articles Articles) {
-	var Db *sql.DB
-	Db = getDb()
-	defer Db.Close()
+    var Db *sql.DB
+    Db = getDb()
+    defer Db.Close()
 
-	rows, err := Db.Query(
-		`SELECT a.article_id,
-		COALESCE(a.article_name_de, ''),
-		a.created,
-		i0.path p0,
-		i1.path p1
-		FROM article a
-		JOIN image_type it0 ON(it0.abbr = 'rma0')
-		LEFT JOIN image i0 ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
-		JOIN image_type it1 ON(it1.abbr = 'rmi0')
-		LEFT JOIN image i1 ON(i1.article_id = a.article_id AND i1.image_type_id = it1.image_type_id)
-		ORDER BY a.created DESC`)
+    var qs string
 
-	if err != nil {
-		panic(err.Error())
-	}
-	defer rows.Close()
+    qs = `SELECT
+        -- article fields
+        a.article_id,
+        COALESCE(a.article_name_de, '') article_name,
+        a.created,
+        i0.path p0
+        -- instance fields
+        -- i.instance_id,
+        -- i.length_mm,
+        -- i.width_mm,
+        -- i.height_mm,
+        -- i.price_cchf,
+        -- ic.collection_de
+        FROM article a
+        JOIN image_type it0 ON(it0.abbr = 'cma0')
+        JOIN image i0 ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
+        JOIN instance i ON(i.article_id = a.article_id)
+        JOIN collection ic ON(ic.collection_id = i.collection_id)
+        GROUP BY a.article_id -- in case an article has >1 cma0
+        ORDER BY a.created DESC`
 
-	var picturePrefixes = [...]string{"rma0", "rmi0"}
+    log.Printf("%s", qs)
 
-	for rows.Next() {
-		var a Article
+    rows, err := Db.Query(qs)
 
-		var created rawTime
+    if err != nil {
+        panic(err.Error())
+    }
+    defer rows.Close()
 
-		var pictures [2]sql.NullString
+    var picturePrefixes = [...]string{"cma0"}
 
-		err := rows.Scan(&a.Id, &a.Name, &created, &pictures[0], &pictures[1])
-		if err != nil {
-			panic(err.Error())
-		}
+    for rows.Next() {
+        var a Article
 
-		a.Created = created.Time()
-		a.Pictures = make(PictureMap)
+        var created rawTime
 
-		for i, p := range pictures {
-			if p.Valid {
-				a.Pictures[picturePrefixes[i]] = Picture{
-					Path: strings.Trim(p.String, "\n\r "),
-					Type: picturePrefixes[i],
-				}
-			}
-		}
-		articles = append(articles, a)
-	}
+        var pictures [1]sql.NullString
 
-	return
+        err := rows.Scan(&a.Id, &a.Name, &created, &pictures[0])
+        if err != nil {
+            panic(err.Error())
+        }
+
+        a.Created = created.Time()
+        a.Pictures = make(PictureMap)
+
+        for i, p := range pictures {
+            if p.Valid {
+                a.Pictures[picturePrefixes[i]] = Picture{
+                    Path: strings.Trim(p.String, "\n\r "),
+                    Type: picturePrefixes[i],
+                }
+            }
+        }
+        articles = append(articles, a)
+    }
+
+    return
 }
