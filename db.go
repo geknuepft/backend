@@ -9,22 +9,21 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var Db *sql.DB
-
-// Give us some seed data
-func init() {
+func getDb() *sql.DB {
 	var err error
+    var Db *sql.DB
 
-	Db, err = sql.Open("mysql", "geknuepft:Er3cof4iesho@tcp(172.17.0.2:3306)/geknuepft")
+	Db, err = sql.Open("mysql", "geknuepft:Er3cof4iesho@tcp(mysql-server:3306)/geknuepft")
 	if err != nil {
 		panic(err.Error())
 	}
-	//defer Db.Close()
 
 	err = Db.Ping()
 	if err != nil {
 		panic(err.Error())
 	}
+
+    return Db
 }
 
 type rawTime []byte
@@ -38,6 +37,10 @@ func (t rawTime) Time() time.Time {
 }
 
 func GetArticles() (articles Articles) {
+	var Db *sql.DB
+	Db = getDb()
+	defer Db.Close()
+
 	rows, err := Db.Query(
 		`SELECT a.article_id,
 		COALESCE(a.article_name_de, ''),
