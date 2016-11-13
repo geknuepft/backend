@@ -35,7 +35,7 @@ func GetArticles() (articles Articles) {
     qs = `SELECT
         -- article fields
         a.article_id,
-        COALESCE(a.article_name_de, '') article_name,
+        COALESCE(a.article_name_de, c.category_de) article_name,
         i0.path p0,
         -- instance fields
         i.instance_id,
@@ -45,6 +45,7 @@ func GetArticles() (articles Articles) {
         i.price_cchf,
         ic.collection_de
         FROM article a
+        JOIN category c ON(c.category_id = a.category_id)
         JOIN image_type it0 ON(it0.abbr = 'cma0')
         JOIN image i0 ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
         LEFT JOIN instance i ON(i.article_id = a.article_id)
