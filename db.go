@@ -48,9 +48,9 @@ func GetArticles() (articles Articles) {
         a.article_id,
         COALESCE(a.article_name_de, '') article_name,
         a.created,
-        i0.path p0
+        i0.path p0,
         -- instance fields
-        -- i.instance_id,
+        i.instance_id
         -- i.length_mm,
         -- i.width_mm,
         -- i.height_mm,
@@ -82,7 +82,7 @@ func GetArticles() (articles Articles) {
 
         var pictures [1]sql.NullString
 
-        err := rows.Scan(&a.Id, &a.Name, &created, &pictures[0])
+        err := rows.Scan(&a.Id, &a.Name, &created, &pictures[0], &a.InstanceId)
         if err != nil {
             panic(err.Error())
         }
