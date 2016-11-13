@@ -4,7 +4,6 @@ import (
     "database/sql"
     "strings"
     "log"
-    "time"
 
     _ "github.com/go-sql-driver/mysql"
 )
@@ -26,16 +25,6 @@ func getDb() *sql.DB {
     return Db
 }
 
-type rawTime []byte
-
-func (t rawTime) Time() time.Time {
-    time, err := time.Parse("2006-01-02 15:04:05", string(t))
-    if err != nil {
-        panic(err.Error())
-    }
-    return time
-}
-
 func GetArticles() (articles Articles) {
     var Db *sql.DB
     Db = getDb()
@@ -47,7 +36,6 @@ func GetArticles() (articles Articles) {
         -- article fields
         a.article_id,
         COALESCE(a.article_name_de, '') article_name,
-        a.created,
         i0.path p0,
         -- instance fields
         i.instance_id,
@@ -78,17 +66,14 @@ func GetArticles() (articles Articles) {
     for rows.Next() {
         var a Article
 
-        var created rawTime
-
         var pictures [1]sql.NullString
 
-        err := rows.Scan(&a.Id, &a.Name, &created, &pictures[0], &a.InstanceId, &a.LengthMm,
+        err := rows.Scan(&a.Id, &a.Name, &pictures[0], &a.InstanceId, &a.LengthMm,
 			&a.WidthMm, &a.HeightMm, &a.PriceCchf, &a.CollectionDe)
         if err != nil {
             panic(err.Error())
         }
 
-        a.Created = created.Time()
         a.Pictures = make(PictureMap)
 
         for i, p := range pictures {
