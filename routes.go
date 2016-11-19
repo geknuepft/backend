@@ -25,6 +25,12 @@ var routes = Routes{
 		ArticleIndex,
 	},
 	Route{
+		"FilterIndex",
+		"GET",
+		"/v0/filters",
+		FilterIndex,
+	},
+	Route{
 		"TodoIndex",
 		"GET",
 		"/v0/todos",

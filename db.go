@@ -1,38 +1,49 @@
 package main
 
 import (
-    "database/sql"
-    "log"
-    "strings"
+	"database/sql"
+	"github.com/jmoiron/sqlx"
+	"log"
+	"strings"
 
-    _ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func getDb() *sql.DB {
-    var err error
-    var Db *sql.DB
+func getDb() (db *sql.DB) {
+	var err error
 
-    Db, err = sql.Open("mysql", "geknuepft:Er3cof4iesho@tcp(mysql-server:3306)/geknuepft")
-    if err != nil {
-        panic(err.Error())
-    }
+	db, err = sql.Open("mysql", "geknuepft:Er3cof4iesho@tcp(mysql-server:3306)/geknuepft")
+	if err != nil {
+		panic(err.Error())
+	}
 
-    err = Db.Ping()
-    if err != nil {
-        panic(err.Error())
-    }
+	err = db.Ping()
+	if err != nil {
+		panic(err.Error())
+	}
 
-    return Db
+	return
+}
+
+func getDbX() (db *sqlx.DB) {
+	var err error
+
+	db, err = sqlx.Connect("mysql", "geknuepft:Er3cof4iesho@tcp(mysql-server:3306)/geknuepft")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return
 }
 
 func GetArticles() (articles Articles) {
-    var Db *sql.DB
-    Db = getDb()
-    defer Db.Close()
+	var Db *sql.DB
+	Db = getDb()
+	defer Db.Close()
 
-    var qs string
+	var qs string
 
-    qs = `SELECT
+	qs = `SELECT
         -- article fields
         a.article_id,
         COALESCE(a.article_name_de, c.category_de) article_name,
@@ -53,40 +64,40 @@ func GetArticles() (articles Articles) {
         GROUP BY a.article_id -- in case an article has >1 cma0
         ORDER BY a.created DESC`
 
-    log.Printf("%s", qs)
+	log.Printf("%s", qs)
 
-    rows, err := Db.Query(qs)
+	rows, err := Db.Query(qs)
 
-    if err != nil {
-        panic(err.Error())
-    }
-    defer rows.Close()
+	if err != nil {
+		panic(err.Error())
+	}
+	defer rows.Close()
 
-    var picturePrefixes = [...]string{"cma0"}
+	var picturePrefixes = [...]string{"cma0"}
 
-    for rows.Next() {
-        var a Article
+	for rows.Next() {
+		var a Article
 
-        var pictures [1]sql.NullString
+		var pictures [1]sql.NullString
 
-        err := rows.Scan(&a.Id, &a.Name, &pictures[0], &a.InstanceId, &a.LengthMm,
-            &a.WidthMm, &a.HeightMm, &a.PriceCchf, &a.CollectionDe)
-        if err != nil {
-            panic(err.Error())
-        }
+		err := rows.Scan(&a.Id, &a.Name, &pictures[0], &a.InstanceId, &a.LengthMm,
+			&a.WidthMm, &a.HeightMm, &a.PriceCchf, &a.CollectionDe)
+		if err != nil {
+			panic(err.Error())
+		}
 
-        a.Pictures = make(PictureMap)
+		a.Pictures = make(PictureMap)
 
-        for i, p := range pictures {
-            if p.Valid {
-                a.Pictures[picturePrefixes[i]] = Picture{
-                    Path: strings.Trim(p.String, "\n\r "),
-                    Type: picturePrefixes[i],
-                }
-            }
-        }
-        articles = append(articles, a)
-    }
+		for i, p := range pictures {
+			if p.Valid {
+				a.Pictures[picturePrefixes[i]] = Picture{
+					Path: strings.Trim(p.String, "\n\r "),
+					Type: picturePrefixes[i],
+				}
+			}
+		}
+		articles = append(articles, a)
+	}
 
-    return
+	return
 }

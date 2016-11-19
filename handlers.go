@@ -12,7 +12,7 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Welcome!\n")
+	fmt.Fprint(w, "Welcome to the geknuepf backend server!\n")
 }
 
 func TodoIndex(w http.ResponseWriter, r *http.Request) {
@@ -84,9 +84,22 @@ func ArticleIndex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusOK)
-	//if err := json.NewEncoder(w).Encode(articles); err != nil {
 
 	b, err := json.MarshalIndent(articles, "", "    ")
+	if err != nil {
+		panic(err)
+	}
+	w.Write(b)
+}
+
+func FilterIndex(w http.ResponseWriter, r *http.Request) {
+	filters := GetFilters()
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(http.StatusOK)
+
+	b, err := json.MarshalIndent(filters, "", "    ")
 	if err != nil {
 		panic(err)
 	}
