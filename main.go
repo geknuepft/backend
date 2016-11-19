@@ -14,7 +14,7 @@ func main() {
 	port, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
 		log.Fatal("while parsing the PORT env variable:")
-		log.Fatal(err)
+		log.Fatal(err.Error())
 		os.Exit(2)
 	}
 
