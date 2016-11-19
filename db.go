@@ -2,8 +2,8 @@ package main
 
 import (
     "database/sql"
-    "strings"
     "log"
+    "strings"
 
     _ "github.com/go-sql-driver/mysql"
 )
@@ -70,7 +70,7 @@ func GetArticles() (articles Articles) {
         var pictures [1]sql.NullString
 
         err := rows.Scan(&a.Id, &a.Name, &pictures[0], &a.InstanceId, &a.LengthMm,
-			&a.WidthMm, &a.HeightMm, &a.PriceCchf, &a.CollectionDe)
+            &a.WidthMm, &a.HeightMm, &a.PriceCchf, &a.CollectionDe)
         if err != nil {
             panic(err.Error())
         }
