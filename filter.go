@@ -14,29 +14,21 @@ type Filter struct {
 }
 
 type FilterRange struct {
-	RangeGeq null.Int `json:"range_geq" db:"range_geq"`
-	RangeLeq null.Int `json:"range_leq" db:"range_leq"`
+	FilterRangeId null.Int `db:"filter_range_id"`
+	RangeGeq      null.Int `json:"range_geq" db:"range_geq"`
+	RangeLeq      null.Int `json:"range_leq" db:"range_leq"`
 }
 
 type FilterRow struct {
 	Filter
-	FilterRangeId null.Int `db:"filter_range_id"`
 	FilterRange
 }
 
 type Filters []Filter
 
-func GetFilters() (filters Filters) {
-
+func getFilterByQs(qs string) (filters Filters) {
 	var db = getDbX()
 	defer db.Close()
-
-	var qs = "SELECT filter_id, filter_type, filter, filter_de, " +
-		"filter_range_id, range_geq, range_leq " +
-		"FROM filter  " +
-		"JOIN filter_type USING(filter_type_id) " +
-		"LEFT JOIN filter_range USING(filter_id) " +
-		"ORDER BY filter_id ASC, filter_range_id ASC"
 
 	filterRow := FilterRow{}
 
@@ -66,4 +58,40 @@ func GetFilters() (filters Filters) {
 	}
 
 	return
+}
+
+func GetFilterById(id int) (filter Filter) {
+	return getFilterByQs(
+		getQs(
+			"filter_id = 1",
+			"",
+		),
+	)[0]
+}
+
+func GetFilters() (filters Filters) {
+	return getFilterByQs(
+		getQs(
+			"",
+			"filter_id ASC, filter_range_id ASC",
+		),
+	)
+}
+
+func getQs(where, orderBy string) (qs string) {
+	qs = "SELECT filter_id, filter_type, filter, filter_de, " +
+		"filter_range_id, range_geq, range_leq " +
+		"FROM filter  " +
+		"JOIN filter_type USING(filter_type_id) " +
+		"LEFT JOIN filter_range USING(filter_id) " +
+		ifNotEmpty("WHERE ", where) + " " +
+		ifNotEmpty("ORDER BY ", orderBy)
+	return
+}
+
+func ifNotEmpty(prefix, value string) string {
+	if len(value) > 0 {
+		return prefix + value
+	}
+	return ""
 }
