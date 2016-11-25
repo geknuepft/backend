@@ -25,6 +25,13 @@ type ArticleRow struct {
 
 type Articles []Article
 
+func GetArticlesByFilterValues(filterValues FilterValues) (articles Articles) {
+
+	log.Printf("%v", filterValues)
+
+	return
+}
+
 func GetArticles() (articles Articles) {
 
 	var db = getDbX()
