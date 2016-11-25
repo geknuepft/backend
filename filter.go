@@ -26,13 +26,13 @@ type FilterRow struct {
 
 type Filters []Filter
 
-func getFilterByQs(qs string, qArgs ...interface{}) (filters Filters) {
+func getFilterByQs(qs string, qArgs interface{}) (filters Filters) {
 	var db = getDbX()
 	defer db.Close()
 
 	filterRow := FilterRow{}
 
-	rows, err := db.Queryx(qs, qArgs...)
+	rows, err := db.NamedQuery(qs, qArgs)
 	if err != nil {
 		log.Printf(err.Error())
 	}
@@ -60,13 +60,13 @@ func getFilterByQs(qs string, qArgs ...interface{}) (filters Filters) {
 	return
 }
 
-func GetFilterById(id int) (filters Filters) {
+func GetFilterById(filterId int) (filters Filters) {
 	return getFilterByQs(
 		getQs(
-			"filter_id = ?",
+			"filter_id = :filter_id",
 			"",
 		),
-		id,
+		map[string]interface{}{"filter_id": filterId},
 	)
 }
 
@@ -76,6 +76,7 @@ func GetFilters() (filters Filters) {
 			"",
 			"filter_id ASC, filter_range_id ASC",
 		),
+		map[string]interface{}{},
 	)
 }
 

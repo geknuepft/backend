@@ -46,7 +46,6 @@ func TodoShow(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Text: "Not Found"}); err != nil {
 		panic(err)
 	}
-
 }
 
 /*
@@ -127,6 +126,17 @@ func FilterById(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Write(b)
 	} else {
-		w.WriteHeader(http.StatusNotFound)
+		jsonWriteNotFound(w)
+	}
+}
+
+func jsonWriteNotFound(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusNotFound)
+
+	ret := jsonErr{Code: http.StatusNotFound, Text: "Not Found"}
+
+	if err := json.NewEncoder(w).Encode(ret); err != nil {
+		panic(err)
 	}
 }
