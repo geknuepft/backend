@@ -92,7 +92,7 @@ func ArticleIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func FilterIndex(w http.ResponseWriter, r *http.Request) {
+func FilterAll(w http.ResponseWriter, r *http.Request) {
 	filters := GetFilters()
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -104,4 +104,29 @@ func FilterIndex(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	w.Write(b)
+}
+
+func FilterById(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	vars := mux.Vars(r)
+	var filterId int
+	var err error
+	if filterId, err = strconv.Atoi(vars["FilterId"]); err != nil {
+		panic(err)
+	}
+
+	filters := GetFilterById(filterId)
+	if len(filters) > 0 {
+		w.WriteHeader(http.StatusOK)
+
+		b, err := json.MarshalIndent(filters, "", "    ")
+		if err != nil {
+			panic(err)
+		}
+		w.Write(b)
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+	}
 }
