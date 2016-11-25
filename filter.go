@@ -62,7 +62,7 @@ func getFilterByQs(qs string, qArgs interface{}) (filters Filters) {
 
 func GetFilterById(filterId int) (filters Filters) {
 	return getFilterByQs(
-		getQs(
+		getFilterQs(
 			"filter_id = :filter_id",
 			"",
 		),
@@ -72,7 +72,7 @@ func GetFilterById(filterId int) (filters Filters) {
 
 func GetFilters() (filters Filters) {
 	return getFilterByQs(
-		getQs(
+		getFilterQs(
 			"",
 			"filter_id ASC, filter_range_id ASC",
 		),
@@ -80,20 +80,13 @@ func GetFilters() (filters Filters) {
 	)
 }
 
-func getQs(where, orderBy string) (qs string) {
+func getFilterQs(where, orderBy string) (qs string) {
 	qs = "SELECT filter_id, filter_type, filter, filter_de, " +
 		"filter_range_id, range_geq, range_leq " +
 		"FROM filter  " +
 		"JOIN filter_type USING(filter_type_id) " +
 		"LEFT JOIN filter_range USING(filter_id) " +
-		ifNotEmpty("WHERE ", where) + " " +
-		ifNotEmpty("ORDER BY ", orderBy)
+		IfNotEmpty("WHERE ", where) + " " +
+		IfNotEmpty("ORDER BY ", orderBy)
 	return
-}
-
-func ifNotEmpty(prefix, value string) string {
-	if len(value) > 0 {
-		return prefix + value
-	}
-	return ""
 }

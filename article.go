@@ -25,42 +25,37 @@ type ArticleRow struct {
 
 type Articles []Article
 
+var picturePrefixes = [...]string{"cma0"}
+
 func GetArticlesByFilterValues(filterValues FilterValues) (articles Articles) {
 
-	log.Printf("%v", filterValues)
+	where, qArgs := getArticleWhere(filterValues)
 
-	return
+	return getArticlesByQs(
+		getArticleQs(
+			where,
+			"a.created DESC",
+		),
+		qArgs,
+	)
 }
 
 func GetArticles() (articles Articles) {
 
+	qs := getArticleQs(
+		"",
+		"a.created DESC",
+	)
+
+	return getArticlesByQs(qs, map[string]interface{}{})
+}
+
+func getArticlesByQs(qs string, qArgs interface{}) (articles Articles) {
+
 	var db = getDbX()
 	defer db.Close()
 
-	var picturePrefixes = [...]string{"cma0"}
-
-	var qs = `SELECT
-        -- article fields
-        a.article_id,
-        COALESCE(a.article_name_de, c.category_de) article_name,
-        i0.path path0,
-        -- instance fields
-        i.instance_id,
-        i.length_mm,
-        i.width_mm,
-        i.height_mm,
-        i.price_cchf,
-        ic.collection_de
-        FROM article a
-        JOIN category c ON(c.category_id = a.category_id)
-        JOIN image_type it0 ON(it0.abbr = '` + picturePrefixes[0] + `')
-        JOIN image i0 ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
-        LEFT JOIN instance i ON(i.article_id = a.article_id)
-        LEFT JOIN collection ic ON(ic.collection_id = i.collection_id)
-        GROUP BY a.article_id -- in case an article has >1 cma0
-        ORDER BY a.created DESC`
-
-	rows, err := db.Queryx(qs)
+	rows, err := db.NamedQuery(qs, qArgs)
 	if err != nil {
 		log.Printf(err.Error())
 	}
@@ -85,6 +80,44 @@ func GetArticles() (articles Articles) {
 		}
 
 		articles = append(articles, *a)
+	}
+
+	return
+}
+
+func getArticleQs(where, orderBy string) (qs string) {
+	qs = `SELECT
+        -- article fields
+        a.article_id,
+        COALESCE(a.article_name_de, c.category_de) article_name,
+        i0.path path0,
+        -- instance fields
+        i.instance_id,
+        i.length_mm,
+        i.width_mm,
+        i.height_mm,
+        i.price_cchf,
+        ic.collection_de
+        FROM article a
+        JOIN category c ON(c.category_id = a.category_id)
+        JOIN image_type it0 ON(it0.abbr = '` + picturePrefixes[0] + `')
+        JOIN image i0 ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
+        LEFT JOIN instance i ON(i.article_id = a.article_id)
+        LEFT JOIN collection ic ON(ic.collection_id = i.collection_id)` +
+		IfNotEmpty("WHERE ", where) + `
+        GROUP BY a.article_id ` + // in case an article has >1 cma0
+		IfNotEmpty("ORDER BY ", orderBy)
+
+	return
+}
+
+func getArticleWhere(filterValues FilterValues) (where string, qArgs map[string]interface{}) {
+
+	qArgs = make(map[string]interface{}, len(filterValues))
+
+	for _, filterValue := range filterValues {
+		log.Printf("%v", filterValue)
+
 	}
 
 	return
