@@ -2,18 +2,20 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"gopkg.in/guregu/null.v3"
 	"log"
+	"strconv"
 )
 
 type Filter struct {
-	Id         int           `json:"filter_id"   db:"filter_id"`
-	FilterType string        `json:"filter_type" db:"filter_type"`
-	Filter     string        `json:"filter"      db:"filter"`
-	FilterDe   string        `json:"filter_de"   db:"filter_de"`
-	DbTable    string        `db:"db_table"`
-	DbColumn   string        `db:"db_column"`
-	Range      []FilterRange `json:"filer_range"`
+	Id         int64                  `json:"filter_id"   db:"filter_id"`
+	FilterType string                 `json:"filter_type" db:"filter_type"`
+	Filter     string                 `json:"filter"      db:"filter"`
+	FilterDe   string                 `json:"filter_de"   db:"filter_de"`
+	DbTable    string                 `db:"db_table"`
+	DbColumn   string                 `db:"db_column"`
+	Range      map[string]FilterRange `json:"filer_range"`
 }
 
 type FilterRange struct {
@@ -52,11 +54,12 @@ func getFilterByQs(qs string, qArgs interface{}) (filters Filters) {
 		if len(filters) < 1 || filter.Id != filterRow.Id {
 			filters = append(filters, filterRow.Filter)
 			filter = &filters[len(filters)-1]
+			filter.Range = make(map[string]FilterRange, 10)
 		}
 
 		// append a range entry when filter_range_id IS NOT NULL
 		if filterRow.FilterRangeId.Valid {
-			filter.Range = append(filter.Range, filterRow.FilterRange)
+			filter.Range[strconv.FormatInt(filterRow.FilterRangeId.Int64, 10)] = filterRow.FilterRange
 		}
 	}
 
@@ -100,4 +103,16 @@ func getFilterQs(where, orderBy string) (qs string) {
 		IfNotEmpty("WHERE ", where) + " " +
 		IfNotEmpty("ORDER BY ", orderBy)
 	return
+}
+
+func (fr FilterRange) GetSql(fieldName string) string {
+	if fr.RangeGeq.Valid && fr.RangeLeq.Valid {
+		return fmt.Sprintf("%s BETWEEN %d AND %d", fieldName, fr.RangeGeq.Int64, fr.RangeLeq.Int64)
+	} else if fr.RangeGeq.Valid {
+		return fmt.Sprintf("%s >= %d", fieldName, fr.RangeGeq.Int64)
+	} else if fr.RangeGeq.Valid {
+		return fmt.Sprintf("%s <= %d", fieldName, fr.RangeLeq.Int64)
+	} else {
+		return ""
+	}
 }

@@ -160,6 +160,17 @@ func getArticleWhereByFilter(filter Filter, filterValue FilterValue) (where stri
 		}
 		in := strings.Join(qValues, ",")
 		where = fmt.Sprintf("%s.%s IN(%s)", alias, filter.DbColumn, in)
+	case "range":
+		qValues := make([]string, 0, len(filterValue.Values))
+
+		fieldName := fmt.Sprintf("%s.%s", alias, filter.DbColumn)
+
+		for _, value := range filterValue.Values {
+			if fr, ok := filter.Range[strconv.Itoa(value)]; ok {
+				qValues = append(qValues, fr.GetSql(fieldName))
+			}
+		}
+		where = "(" + strings.Join(qValues, " OR ") + ")"
 	default:
 		panic("article: getArticleJoin: unsupported type: " + filter.FilterType)
 	}
