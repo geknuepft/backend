@@ -42,22 +42,4 @@ var routes = Routes{
 		"/v0/filter/{FilterId:[0-9]+}",
 		FilterById,
 	},
-	Route{
-		"TodoIndex",
-		"GET",
-		"/v0/todos",
-		TodoIndex,
-	},
-	Route{
-		"TodoCreate",
-		"POST",
-		"/v0/todos",
-		TodoCreate,
-	},
-	Route{
-		"TodoShow",
-		"GET",
-		"/v0/todos/{todoId}",
-		TodoShow,
-	},
 }
