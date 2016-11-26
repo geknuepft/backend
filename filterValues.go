@@ -6,3 +6,7 @@ type FilterValue struct {
 }
 
 type FilterValues []FilterValue
+
+func (filterValue FilterValue) GetFilter() (filter Filter, err error) {
+	return GetFilterById(filterValue.FilterId)
+}

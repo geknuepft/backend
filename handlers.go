@@ -145,11 +145,12 @@ func FilterById(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	filters := GetFilterById(filterId)
-	if len(filters) > 0 {
+	filter, err := GetFilterById(filterId)
+
+	if err == nil {
 		w.WriteHeader(http.StatusOK)
 
-		b, err := json.MarshalIndent(filters[0], "", "    ")
+		b, err := json.MarshalIndent(filter, "", "    ")
 		if err != nil {
 			panic(err)
 		}

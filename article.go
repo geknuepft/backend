@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"gopkg.in/guregu/null.v3"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -28,8 +30,8 @@ type Articles []Article
 var picturePrefixes = [...]string{"cma0"}
 
 func GetArticlesByFilterValues(filterValues FilterValues) (articles Articles) {
-
-	where, qArgs := getArticleWhere(filterValues)
+	wheres, qArgs := getArticleWhere(filterValues)
+	where := strings.Join(wheres, " AND ")
 
 	return getArticlesByQs(
 		getArticleQs(
@@ -41,7 +43,6 @@ func GetArticlesByFilterValues(filterValues FilterValues) (articles Articles) {
 }
 
 func GetArticles() (articles Articles) {
-
 	qs := getArticleQs(
 		"",
 		"a.created DESC",
@@ -86,10 +87,11 @@ func getArticlesByQs(qs string, qArgs interface{}) (articles Articles) {
 }
 
 func getArticleQs(where, orderBy string) (qs string) {
-	qs = `SELECT
+	qs = `
+        SELECT
         -- article fields
         a.article_id,
-        COALESCE(a.article_name_de, c.category_de) article_name,
+        COALESCE(a.article_name_de, cat.category_de) article_name,
         i0.path path0,
         -- instance fields
         i.instance_id,
@@ -99,25 +101,67 @@ func getArticleQs(where, orderBy string) (qs string) {
         i.price_cchf,
         ic.collection_de
         FROM article a
-        JOIN category c ON(c.category_id = a.category_id)
-        JOIN image_type it0 ON(it0.abbr = '` + picturePrefixes[0] + `')
-        JOIN image i0 ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
-        LEFT JOIN instance i ON(i.article_id = a.article_id)
-        LEFT JOIN collection ic ON(ic.collection_id = i.collection_id)` +
-		IfNotEmpty("WHERE ", where) + `
-        GROUP BY a.article_id ` + // in case an article has >1 cma0
-		IfNotEmpty("ORDER BY ", orderBy)
+        JOIN category          cat  ON(cat.category_id = a.category_id)
+        JOIN image_type        it0  ON(it0.abbr = '` + picturePrefixes[0] + `')
+        JOIN image             i0   ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
+        JOIN instance          i    ON(i.article_id = a.article_id)
+        JOIN collection        ic   ON(ic.collection_id = i.collection_id)
+        JOIN component         co   ON(co.article_id = a.article_id)
+        JOIN material_x_color  mxc  ON(mxc.material_id = co.material_id)
+        JOIN color             col  ON(col.color_id = mxc.color_id)
+        JOIN color_cat         ccat ON(ccat.color_cat_id = col.color_cat_id)
+        ` + IfNotEmpty("WHERE ", where) + `
+        GROUP BY a.article_id 
+        ` + IfNotEmpty("ORDER BY ", orderBy)
+
+	log.Printf("qs=%s", qs)
 
 	return
 }
 
-func getArticleWhere(filterValues FilterValues) (where string, qArgs map[string]interface{}) {
-
-	qArgs = make(map[string]interface{}, len(filterValues))
+func getArticleWhere(filterValues FilterValues) (wheres []string, qArgs map[string]interface{}) {
+	wheres = make([]string, 0, len(filterValues))
 
 	for _, filterValue := range filterValues {
-		log.Printf("%v", filterValue)
+		filter, err := filterValue.GetFilter()
+		if err != nil {
+			continue
+		}
+		where := getArticleWhereByFilter(filter, filterValue)
+		wheres = append(wheres, where)
+	}
 
+	return
+}
+
+func getArticleWhereByFilter(filter Filter, filterValue FilterValue) (where string) {
+
+	// check that DbTable is supported
+	var alias string
+	switch filter.DbTable {
+	case "instance":
+		alias = "i"
+	case "category":
+		alias = "cat"
+	case "color":
+		alias = "col"
+	case "color_cat":
+		alias = "ccat"
+	default:
+		panic("article: getArticleJoin: unknown table: " + filter.DbTable)
+	}
+
+	// check that the FilterType is supported
+	switch filter.FilterType {
+	case "id":
+		qValues := make([]string, len(filterValue.Values))
+		for i, value := range filterValue.Values {
+			qValues[i] = strconv.Itoa(value)
+		}
+		in := strings.Join(qValues, ",")
+		where = fmt.Sprintf("%s.%s IN(%s)", alias, filter.DbColumn, in)
+	default:
+		panic("article: getArticleJoin: unsupported type: " + filter.FilterType)
 	}
 
 	return
