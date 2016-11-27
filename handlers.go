@@ -17,12 +17,24 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Welcome to the geknuepf backend server!\n")
 }
 
+func writeJsonHeaders(w http.ResponseWriter, status int) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.WriteHeader(status)
+}
+
+func writeJpegHeaders(w http.ResponseWriter, status int) {
+	w.Header().Set("Content-Type", "image/jpeg")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Cache-Control", "public, max-age=604800") // 1 week
+	w.WriteHeader(status)
+}
+
 func ArticleIndex(w http.ResponseWriter, r *http.Request) {
 	articles := GetArticles()
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.WriteHeader(http.StatusOK)
+	writeJsonHeaders(w, http.StatusOK)
 
 	b, err := json.MarshalIndent(articles, "", "    ")
 	if err != nil {
@@ -111,7 +123,6 @@ func ArticleSearch(w http.ResponseWriter, r *http.Request) {
 }
 
 func gojsonschemaErrorToSring(inp []gojsonschema.ResultError) (oup []string) {
-
 	oup = make([]string, len(inp))
 
 	for i, error := range inp {
@@ -124,9 +135,7 @@ func gojsonschemaErrorToSring(inp []gojsonschema.ResultError) (oup []string) {
 func FilterAll(w http.ResponseWriter, r *http.Request) {
 	filters := GetFilters()
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.WriteHeader(http.StatusOK)
+	writeJsonHeaders(w, http.StatusOK)
 
 	b, err := json.MarshalIndent(filters, "", "    ")
 	if err != nil {
@@ -136,9 +145,6 @@ func FilterAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func FilterById(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
 	vars := mux.Vars(r)
 	var filterId int
 	var err error
@@ -149,7 +155,7 @@ func FilterById(w http.ResponseWriter, r *http.Request) {
 	filter, err := GetFilterById(filterId)
 
 	if err == nil {
-		w.WriteHeader(http.StatusOK)
+		writeJsonHeaders(w, http.StatusOK)
 
 		b, err := json.MarshalIndent(filter, "", "    ")
 		if err != nil {
@@ -171,8 +177,7 @@ func jsonWriteNotFound(w http.ResponseWriter) {
 }
 
 func jsonWriteError(w http.ResponseWriter, text string) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusNotFound)
+	writeJsonHeaders(w, http.StatusNotFound)
 
 	ret := jsonErr{Code: http.StatusNotFound, Text: text}
 
@@ -182,9 +187,6 @@ func jsonWriteError(w http.ResponseWriter, text string) {
 }
 
 func Image(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "image/jpeg")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
 	vars := mux.Vars(r)
 	var format int
 	var err error
@@ -197,7 +199,7 @@ func Image(w http.ResponseWriter, r *http.Request) {
 	oupImg, err := ImageGet(format, path)
 
 	if err == nil {
-		w.WriteHeader(http.StatusOK)
+		writeJpegHeaders(w, http.StatusOK)
 		err = ImageWrite(w, oupImg)
 	}
 
