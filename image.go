@@ -10,7 +10,7 @@ import (
 	"github.com/rwcarlsen/goexif/exif"
 )
 
-var inpDir = "/srv/db_tracked/"
+var inpDir = "/srv/geknuepft_pictures_web/"
 
 func ImageGet(format int, path string) (oupImg *image.NRGBA, err error) {
 
