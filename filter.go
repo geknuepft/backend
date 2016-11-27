@@ -13,15 +13,15 @@ type Filter struct {
 	FilterType string                 `json:"filter_type" db:"filter_type"`
 	Filter     string                 `json:"filter"      db:"filter"`
 	FilterDe   string                 `json:"filter_de"   db:"filter_de"`
-	DbTable    string                 `db:"db_table"`
-	DbColumn   string                 `db:"db_column"`
+	DbTable    string                 `json:"-"           db:"db_table"`
+	DbColumn   string                 `json:"-"           db:"db_column"`
 	Range      map[string]FilterRange `json:"filer_range"`
 }
 
 type FilterRange struct {
-	FilterRangeId null.Int `db:"filter_range_id"`
-	RangeGeq      null.Int `json:"range_geq" db:"range_geq"`
-	RangeLeq      null.Int `json:"range_leq" db:"range_leq"`
+	FilterRangeId null.Int `json:"filter_range_id" db:"filter_range_id"`
+	RangeGeq      null.Int `json:"range_geq"       db:"range_geq"`
+	RangeLeq      null.Int `json:"range_leq"       db:"range_leq"`
 }
 
 type FilterRow struct {
