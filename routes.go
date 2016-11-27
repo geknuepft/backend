@@ -42,4 +42,10 @@ var routes = Routes{
 		"/v0/filter/{FilterId:[0-9]+}",
 		FilterById,
 	},
+	Route{
+		"Imgage",
+		"GET",
+		"/v0/Image/{format}p/{Path:[a-zA-Z0-9/_]+}/{FileName:[a-zA-Z0-9_]+.(JPG|jpg)}",
+		Image,
+	},
 }

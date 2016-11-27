@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -166,12 +167,43 @@ type jsonErr struct {
 }
 
 func jsonWriteNotFound(w http.ResponseWriter) {
+	jsonWriteError(w, "Object Not Found")
+}
+
+func jsonWriteError(w http.ResponseWriter, text string) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusNotFound)
 
-	ret := jsonErr{Code: http.StatusNotFound, Text: "Not Found"}
+	ret := jsonErr{Code: http.StatusNotFound, Text: text}
 
 	if err := json.NewEncoder(w).Encode(ret); err != nil {
 		panic(err)
+	}
+}
+
+func Image(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "image/jpeg")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	vars := mux.Vars(r)
+	var format int
+	var err error
+	if format, err = strconv.Atoi(vars["format"]); err != nil {
+		panic(err)
+	}
+
+	path := vars["Path"] + "/" + vars["FileName"]
+
+	oupImg, err := ImageGet(format, path)
+
+	if err == nil {
+		w.WriteHeader(http.StatusOK)
+		err = ImageWrite(w, oupImg)
+	}
+
+	if err == nil {
+		log.Printf("serve image: format=%v, path=%v", format, path)
+	} else {
+		jsonWriteError(w, err.Error())
 	}
 }
