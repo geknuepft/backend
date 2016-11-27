@@ -4,14 +4,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"runtime"
 	"strconv"
 )
 
 func main() {
-
-	runtime.GOMAXPROCS(runtime.NumCPU())
-
 	router := NewRouter()
 
 	port, err := strconv.Atoi(os.Getenv("PORT"))
