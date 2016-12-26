@@ -12,10 +12,8 @@ type Article struct {
 	Id           int         `json:"article_id"    db:"article_id"`
 	Name         string      `json:"name"          db:"article_name"`
 	Pictures     PictureMap  `json:"pictures"`
-	InstanceId   null.Int    `json:"instance_id"   db:"instance_id"`
-	LengthMm     null.Int    `json:"length_mm"     db:"length_mm""`
+	LengthMm     int         `json:"length_mm"     db:"length_mm"`
 	WidthMm      null.Int    `json:"width_mm"      db:"width_mm"`
-	HeightMm     null.Int    `json:"height_mm"     db:"height_mm"`
 	PriceCchf    null.Int    `json:"price_cchf"    db:"price_cchf"`
 	CollectionDe null.String `json:"collection_de" db:"collection_de"`
 }
@@ -37,6 +35,7 @@ func GetArticlesByFilterValues(filterValues FilterValues) (articles Articles) {
 		getArticleQs(
 			where,
 			"a.created DESC",
+			180,
 		),
 		qArgs,
 	)
@@ -46,6 +45,7 @@ func GetArticles() (articles Articles) {
 	qs := getArticleQs(
 		"",
 		"a.created DESC",
+		180,
 	)
 
 	return getArticlesByQs(qs, map[string]interface{}{})
@@ -86,7 +86,7 @@ func getArticlesByQs(qs string, qArgs interface{}) (articles Articles) {
 	return
 }
 
-func getArticleQs(where, orderBy string) (qs string) {
+func getArticleQs(where, orderBy string, lengthMm int) (qs string) {
 	qs = `
         SELECT
         -- article fields
@@ -94,22 +94,31 @@ func getArticleQs(where, orderBy string) (qs string) {
         COALESCE(a.article_name_de, cat.category_de) article_name,
         i0.path path0,
         -- instance fields
-        i.instance_id,
-        i.length_mm,
-        i.width_mm,
-        i.height_mm,
-        i.price_cchf,
-        ic.collection_de
+        ` + strconv.Itoa(lengthMm) + ` length_mm,
+        ROUND(p.width_mm * AVG(pr.pattern_factor_width)) width_mm,
+        ROUND(
+          5 * (
+            (p.price_cchf + ` + strconv.Itoa(lengthMm) + ` * p.price_cchf_cm / 10) +
+            COALESCE(
+              FLOOR(p.numb_pearls + ` + strconv.Itoa(lengthMm) + ` * p.numb_pearls_cm / 10)
+              * MAX(m.price_pp_cchf),
+              0
+            )
+          )
+        ) DIV 5 price_cchf,
+        ac.collection_de
         FROM article a
         JOIN category          cat  ON(cat.category_id = a.category_id)
         JOIN image_type        it0  ON(it0.abbr = '` + picturePrefixes[0] + `')
         JOIN image             i0   ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
-        JOIN instance          i    ON(i.article_id = a.article_id)
-        JOIN collection        ic   ON(ic.collection_id = i.collection_id)
+        JOIN collection        ac   ON(ac.collection_id = a.collection_id)
         JOIN component         co   ON(co.article_id = a.article_id)
+        JOIN material          m    ON(m.material_id = co.material_id)
+        JOIN product           pr   ON(pr.product_id = m.product_id)
         JOIN material_x_color  mxc  ON(mxc.material_id = co.material_id)
         JOIN color             col  ON(col.color_id = mxc.color_id)
         JOIN color_cat         ccat ON(ccat.color_cat_id = col.color_cat_id)
+        JOIN pattern           p    ON(p.pattern_id = a.pattern_id)
         ` + IfNotEmpty("WHERE ", where) + `
         GROUP BY a.article_id 
         ` + IfNotEmpty("ORDER BY ", orderBy)

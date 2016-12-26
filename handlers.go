@@ -43,6 +43,29 @@ func ArticleIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
+func ArticleDetailById(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	var articleId int
+	var err error
+	if articleId, err = strconv.Atoi(vars["ArticleId"]); err != nil {
+		panic(err)
+	}
+
+	articleDetail, err := GetArticleDetailById(articleId)
+
+	if err == nil {
+		writeJsonHeaders(w, http.StatusOK)
+
+		b, err := json.MarshalIndent(articleDetail, "", "    ")
+		if err != nil {
+			panic(err)
+		}
+		w.Write(b)
+	} else {
+		jsonWriteNotFound(w)
+	}
+}
+
 func ArticleSearch(w http.ResponseWriter, r *http.Request) {
 	// read request body
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
