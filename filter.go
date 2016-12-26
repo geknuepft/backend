@@ -15,13 +15,13 @@ type Filter struct {
 	FilterDe   string                 `json:"filter_de"   db:"filter_de"`
 	DbTable    string                 `json:"-"           db:"db_table"`
 	DbColumn   string                 `json:"-"           db:"db_column"`
-	Range      map[string]FilterRange `json:"filer_range"`
+	Range      map[string]FilterRange `json:"range"`
 }
 
 type FilterRange struct {
 	FilterRangeId null.Int `json:"filter_range_id" db:"filter_range_id"`
-	RangeGeq      null.Int `json:"range_geq"       db:"range_geq"`
-	RangeLeq      null.Int `json:"range_leq"       db:"range_leq"`
+	Geq           null.Int `json:"geq"             db:"range_geq"`
+	Leq           null.Int `json:"leq"             db:"range_leq"`
 }
 
 type FilterRow struct {
@@ -106,12 +106,12 @@ func getFilterQs(where, orderBy string) (qs string) {
 }
 
 func (fr FilterRange) GetSql(fieldName string) string {
-	if fr.RangeGeq.Valid && fr.RangeLeq.Valid {
-		return fmt.Sprintf("%s BETWEEN %d AND %d", fieldName, fr.RangeGeq.Int64, fr.RangeLeq.Int64)
-	} else if fr.RangeGeq.Valid {
-		return fmt.Sprintf("%s >= %d", fieldName, fr.RangeGeq.Int64)
-	} else if fr.RangeGeq.Valid {
-		return fmt.Sprintf("%s <= %d", fieldName, fr.RangeLeq.Int64)
+	if fr.Geq.Valid && fr.Leq.Valid {
+		return fmt.Sprintf("%s BETWEEN %d AND %d", fieldName, fr.Geq.Int64, fr.Leq.Int64)
+	} else if fr.Geq.Valid {
+		return fmt.Sprintf("%s >= %d", fieldName, fr.Geq.Int64)
+	} else if fr.Geq.Valid {
+		return fmt.Sprintf("%s <= %d", fieldName, fr.Leq.Int64)
 	} else {
 		return ""
 	}
