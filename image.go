@@ -4,17 +4,24 @@ import (
 	"image"
 	"image/jpeg"
 	"io"
+	"log"
 	"os"
 
 	"github.com/disintegration/imaging"
 	"github.com/rwcarlsen/goexif/exif"
 )
 
-var inpDir = "/srv/geknuepft_pictures_web/"
-
 func ImageGet(format int, path string) (oupImg *image.NRGBA, err error) {
 
-	inpImgF, err := os.Open(inpDir + path)
+	inpDir := os.Getenv("IMAGE_INPUT_DIR")
+	if inpDir == "" {
+		log.Fatal("env variable IMAGE_INPUT_DIR must be set")
+		return
+	}
+	filePath := inpDir + path
+	log.Printf("reading %v", filePath)
+
+	inpImgF, err := os.Open(filePath)
 	if err != nil {
 		return
 	}
@@ -26,9 +33,11 @@ func ImageGet(format int, path string) (oupImg *image.NRGBA, err error) {
 		return
 	}
 
-	tag, _ := x.Get(exif.Orientation)
-	var orientation = tag.Val
-	var rotate = orientation[0] == 8
+	rotate := false
+	if tag, err := x.Get(exif.Orientation); err != nil && tag != nil {
+		var orientation = tag.Val
+		rotate = orientation[0] == 8
+	}
 
 	// read and decode jpg image
 	inpImgF.Seek(0, 0)
