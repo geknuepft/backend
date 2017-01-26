@@ -32,7 +32,15 @@ func writeJpegHeaders(w http.ResponseWriter, status int) {
 }
 
 func ArticleIndex(w http.ResponseWriter, r *http.Request) {
-	articles := GetArticles()
+
+	// parse get parameters
+	lengthMm, err := strconv.Atoi(r.URL.Query().Get("length_mm"))
+	if err != nil {
+		lengthMm = 140
+	}
+	log.Printf("lengthMm=%v", lengthMm)
+
+	articles := GetArticlesByFilterValues(FilterValues{}, lengthMm)
 
 	writeJsonHeaders(w, http.StatusOK)
 
@@ -131,7 +139,7 @@ func ArticleSearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get data
-	articles := GetArticlesByFilterValues(filterValues)
+	articles := GetArticlesByFilterValues(filterValues, 180)
 
 	// write resposne
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

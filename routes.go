@@ -33,7 +33,7 @@ var routes = Routes{
 	Route{
 		"ArticleSearch",
 		"POST",
-		"/v0/articles/search",
+		"/v0/articles",
 		ArticleSearch,
 	},
 	Route{

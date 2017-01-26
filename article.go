@@ -27,7 +27,7 @@ type Articles []Article
 
 var picturePrefixes = [...]string{"cma0"}
 
-func GetArticlesByFilterValues(filterValues FilterValues) (articles Articles) {
+func GetArticlesByFilterValues(filterValues FilterValues, lengthMm int) (articles Articles) {
 	wheres, qArgs := getArticleWhere(filterValues)
 	where := strings.Join(wheres, " AND ")
 
@@ -35,7 +35,7 @@ func GetArticlesByFilterValues(filterValues FilterValues) (articles Articles) {
 		getArticleQs(
 			where,
 			"a.created DESC",
-			180,
+			lengthMm,
 		),
 		qArgs,
 	)
@@ -87,6 +87,8 @@ func getArticlesByQs(qs string, qArgs interface{}) (articles Articles) {
 }
 
 func getArticleQs(where, orderBy string, lengthMm int) (qs string) {
+	lengthMmStr := strconv.Itoa(lengthMm)
+
 	qs = `
         SELECT
         -- article fields
@@ -94,13 +96,13 @@ func getArticleQs(where, orderBy string, lengthMm int) (qs string) {
         COALESCE(a.article_name_de, cat.category_de) article_name,
         i0.path path0,
         -- instance fields
-        ` + strconv.Itoa(lengthMm) + ` length_mm,
+        ` + lengthMmStr + ` length_mm,
         ROUND(p.width_mm * AVG(pr.pattern_factor_width)) width_mm,
         ROUND(
           5 * (
-            (p.price_cchf + ` + strconv.Itoa(lengthMm) + ` * p.price_cchf_cm / 10) +
+            (p.price_cchf + ` + lengthMmStr + ` * p.price_cchf_cm / 10) +
             COALESCE(
-              FLOOR(p.numb_pearls + ` + strconv.Itoa(lengthMm) + ` * p.numb_pearls_cm / 10)
+              FLOOR(p.numb_pearls + ` + lengthMmStr + ` * p.numb_pearls_cm / 10)
               * MAX(m.price_pp_cchf),
               0
             )
