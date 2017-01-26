@@ -34,7 +34,7 @@ func GetArticlesByFilterValues(filterValues FilterValues, lengthMm int) (article
 	return getArticlesByQs(
 		getArticleQs(
 			where,
-			"a.created DESC",
+			"a.created DESC, a.article_id ASC",
 			lengthMm,
 		),
 		qArgs,
@@ -99,15 +99,15 @@ func getArticleQs(where, orderBy string, lengthMm int) (qs string) {
         ` + lengthMmStr + ` length_mm,
         ROUND(p.width_mm * AVG(pr.pattern_factor_width)) width_mm,
         ROUND(
-          5 * (
+          (
             (p.price_cchf + ` + lengthMmStr + ` * p.price_cchf_cm / 10) +
             COALESCE(
               FLOOR(p.numb_pearls + ` + lengthMmStr + ` * p.numb_pearls_cm / 10)
               * MAX(m.price_pp_cchf),
               0
             )
-          )
-        ) DIV 5 price_cchf,
+          ),-1
+        ) price_cchf,
         ac.collection_de
         FROM article a
         JOIN category          cat  ON(cat.category_id = a.category_id)

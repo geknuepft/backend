@@ -38,7 +38,6 @@ func ArticleIndex(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		lengthMm = 140
 	}
-	log.Printf("lengthMm=%v", lengthMm)
 
 	articles := GetArticlesByFilterValues(FilterValues{}, lengthMm)
 
