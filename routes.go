@@ -19,12 +19,6 @@ var routes = Routes{
 		Index,
 	},
 	Route{
-		"ArticleIndex",
-		"GET",
-		"/v0/articles",
-		ArticleIndex,
-	},
-	Route{
 		"ArticleDetailById",
 		"GET",
 		"/v0/article/{ArticleId:[0-9]+}",

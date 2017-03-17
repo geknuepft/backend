@@ -31,25 +31,6 @@ func writeJpegHeaders(w http.ResponseWriter, status int) {
 	w.WriteHeader(status)
 }
 
-func ArticleIndex(w http.ResponseWriter, r *http.Request) {
-
-	// parse get parameters
-	lengthMm, err := strconv.Atoi(r.URL.Query().Get("length_mm"))
-	if err != nil {
-		lengthMm = 140
-	}
-
-	articles := GetArticlesByFilterValues(FilterValues{}, lengthMm)
-
-	writeJsonHeaders(w, http.StatusOK)
-
-	b, err := json.MarshalIndent(articles, "", "    ")
-	if err != nil {
-		panic(err)
-	}
-	w.Write(b)
-}
-
 func ArticleDetailById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var articleId int
@@ -74,6 +55,12 @@ func ArticleDetailById(w http.ResponseWriter, r *http.Request) {
 }
 
 func ArticleSearch(w http.ResponseWriter, r *http.Request) {
+	// parse get parameters
+	lengthMm, err := strconv.Atoi(r.URL.Query().Get("length_mm"))
+	if err != nil {
+		lengthMm = 140
+	}
+
 	// read request body
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -138,7 +125,7 @@ func ArticleSearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get data
-	articles := GetArticlesByFilterValues(filterValues, 180)
+	articles := GetArticlesByFilterValues(filterValues, lengthMm)
 
 	// write resposne
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
