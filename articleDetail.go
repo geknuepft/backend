@@ -52,8 +52,6 @@ func getArticleDetailByQs(qs string, qArgs interface{}) (articleDetail ArticleDe
 
 	a := &articleDetailRow.ArticleDetail
 
-	//articleDetail = articleDetailRow.ArticleDetail
-
 	if articleDetailRow.Path0.Valid {
 		a.Pictures = make(PictureMap)
 		a.Pictures[picturePrefixes[0]] = Picture{
@@ -88,7 +86,7 @@ func getArticleDetailQs(where, orderBy string) (qs string) {
         JOIN image_type        it0  ON(it0.abbr = '` + picturePrefixes[0] + `')
         JOIN image             i0   ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
         JOIN instance          i    ON(i.article_id = a.article_id)
-        JOIN collection        ic   ON(ic.collection_id = i.collection_id)
+        LEFT JOIN collection        ic   ON(ic.collection_id = a.collection_id)
         JOIN component         co   ON(co.article_id = a.article_id)
         JOIN material_x_color  mxc  ON(mxc.material_id = co.material_id)
         JOIN color             col  ON(col.color_id = mxc.color_id)
