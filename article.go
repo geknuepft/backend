@@ -102,7 +102,7 @@ func getArticleQs(where, orderBy string, lengthMm int) (qs string) {
           (
             (p.price_cchf + ` + lengthMmStr + ` * p.price_cchf_cm / 10) +
             COALESCE(
-              FLOOR(p.numb_pearls + ` + lengthMmStr + ` * p.numb_pearls_cm / 10)
+              FLOOR(p.numb_pearls + ` + lengthMmStr + ` * p.numb_pearls_10cm / 100)
               * MAX(m.price_pp_cchf),
               0
             )
