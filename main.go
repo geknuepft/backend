@@ -2,14 +2,13 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 	"strconv"
+	"github.com/geknuepft/backend/webserver"
 )
 
 func main() {
-	router := NewRouter()
-
+	// get configuration
 	port, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
 		log.Fatal("while parsing the PORT env variable:")
@@ -17,7 +16,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	log.Printf("[geknuepft-backend] listening on port %v", port)
-
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), router))
+	// start http server
+	env := &webserver.Environment{}
+	webserver.Run("", port, env, httpRoutes)
 }

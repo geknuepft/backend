@@ -1,57 +1,53 @@
 package main
 
-import "net/http"
+import (
+	"github.com/geknuepft/backend/image"
+	"github.com/geknuepft/backend/webserver"
+)
 
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc http.HandlerFunc
-}
-
-type Routes []Route
-
-var routes = Routes{
-	Route{
+var httpRoutes = webserver.HttpRoutes{
+	webserver.HttpRoute{
 		"Index",
 		"GET",
 		"/",
-		Index,
+		webserver.HandleIndex,
 	},
-	Route{
+	/*
+	HttpRoute{
 		"ArticleIndex",
 		"GET",
 		"/v0/articles",
 		ArticleIndex,
 	},
-	Route{
+	HttpRoute{
 		"ArticleDetailById",
 		"GET",
 		"/v0/article/{ArticleId:[0-9]+}",
 		ArticleDetailById,
 	},
-	Route{
+	HttpRoute{
 		"ArticleSearch",
 		"POST",
 		"/v0/articles",
 		ArticleSearch,
 	},
-	Route{
+	HttpRoute{
 		"FilterAll",
 		"GET",
 		"/v0/filters",
 		FilterAll,
 	},
-	Route{
+	HttpRoute{
 		"FilterById",
 		"GET",
 		"/v0/filter/{FilterId:[0-9]+}",
 		FilterById,
 	},
-	Route{
+	*/
+	webserver.HttpRoute{
 		"Imgage",
 		"GET",
 		"/v0/Image/{format}p/{Path:[a-zA-Z0-9/_]+}/{FileName:[a-zA-Z0-9_]+.(?:JPG|jpg)}",
-		Image,
+		image.ImageHandleGet,
 	},
 }

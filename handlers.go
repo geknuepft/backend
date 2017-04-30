@@ -2,10 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -13,21 +11,10 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Welcome to the geknuepf backend server!\n")
-}
-
 func writeJsonHeaders(w http.ResponseWriter, status int) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Cache-Control", "no-cache")
-	w.WriteHeader(status)
-}
-
-func writeJpegHeaders(w http.ResponseWriter, status int) {
-	w.Header().Set("Content-Type", "image/jpeg")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Cache-Control", "public, max-age=604800") // 1 week
 	w.WriteHeader(status)
 }
 
@@ -213,29 +200,5 @@ func jsonWriteError(w http.ResponseWriter, text string) {
 
 	if err := json.NewEncoder(w).Encode(ret); err != nil {
 		panic(err)
-	}
-}
-
-func Image(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	var format int
-	var err error
-	if format, err = strconv.Atoi(vars["format"]); err != nil {
-		panic(err)
-	}
-
-	path := vars["Path"] + "/" + vars["FileName"]
-
-	oupImg, err := ImageGet(format, path)
-
-	if err == nil {
-		writeJpegHeaders(w, http.StatusOK)
-		err = ImageWrite(w, oupImg)
-	}
-
-	if err == nil {
-		log.Printf("serve image: format=%v, path=%v", format, path)
-	} else {
-		jsonWriteError(w, err.Error())
 	}
 }
