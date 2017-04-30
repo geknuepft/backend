@@ -10,14 +10,15 @@ import (
 
 type ArticleDetail struct {
 	Article
+	Pictures PictureMap  `json:"pictures"`
 }
 
 type ArticleDetailRow struct {
 	ArticleDetail
-	Path0 null.String `db:"path0"`
+	Path0    null.String `db:"path0"`
 }
 
-//var picturePrefixes = [...]string{"cma0"}
+var picturePrefixes = [...]string{"cma0"}
 
 func GetArticleDetailById(articleId int) (articleDetail ArticleDetail, err error) {
 	qs := getArticleDetailQs(

@@ -10,21 +10,18 @@ import (
 )
 
 type Article struct {
-	Id           int         `json:"article_id"    db:"article_id"`
-	Name         string      `json:"name"          db:"article_name"`
-	Pictures     PictureMap  `json:"pictures"`
-	WidthMm      null.Int    `json:"width_mm"      db:"width_mm"`
-	PriceCchf    null.Int    `json:"price_cchf"    db:"price_cchf"`
+	Id        int         `json:"article_id"    db:"article_id"`
+	Name      string      `json:"name"          db:"article_name"`
+	Picture   null.String `json:"pictures"      db:"path0"`
+	WidthMm   null.Int    `json:"width_mm"      db:"width_mm"`
+	PriceCchf null.Int    `json:"price_cchf"    db:"price_cchf"`
 }
 
 type ArticleRow struct {
 	Article
-	Path0 null.String `db:"path0"`
 }
 
 type Articles []Article
-
-var picturePrefixes = [...]string{"cma0"}
 
 func GetArticlesByFilterValues(filterValues FilterValues, lengthMm int) (articles Articles) {
 	wheres, qArgs := getArticleWhere(filterValues)
@@ -71,14 +68,6 @@ func getArticlesByQs(qs string, qArgs interface{}) (articles Articles) {
 
 		a := &articleRow.Article
 
-		if articleRow.Path0.Valid {
-			a.Pictures = make(PictureMap)
-			a.Pictures[picturePrefixes[0]] = Picture{
-				Path: strings.Trim(articleRow.Path0.String, "\n\r "),
-				Type: picturePrefixes[0],
-			}
-		}
-
 		articles = append(articles, *a)
 	}
 
@@ -108,7 +97,7 @@ func getArticleQs(where, orderBy string, lengthMm int) (qs string) {
         ) price_cchf
         FROM article           a
         JOIN category          cat  ON(cat.category_id = a.category_id)
-        JOIN image_type        it0  ON(it0.abbr = '` + picturePrefixes[0] + `')
+        JOIN image_type        it0  ON(it0.abbr = 'cma0')
         JOIN image             i0   ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
         JOIN collection        ac   ON(ac.collection_id = a.collection_id)
         JOIN component         co   ON(co.article_id = a.article_id)
