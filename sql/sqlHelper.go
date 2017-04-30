@@ -1,4 +1,4 @@
-package main
+package sql
 
 func IfNotEmpty(prefix, value string) string {
 	if len(value) > 0 {

@@ -8,13 +8,6 @@ import (
 	"github.com/geknuepft/backend/webserver"
 )
 
-func writeJpegHeaders(w http.ResponseWriter, status int) {
-	w.Header().Set("Content-Type", "image/jpeg")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Cache-Control", "public, max-age=604800") // 1 week
-	w.WriteHeader(status)
-}
-
 func ImageHandleGet(env *webserver.Environment, w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	var format int
@@ -30,7 +23,7 @@ func ImageHandleGet(env *webserver.Environment, w http.ResponseWriter, r *http.R
 		return webserver.StatusError{404, err}
 	}
 
-	writeJpegHeaders(w, http.StatusOK)
+	webserver.WriteJpegHeaders(w, http.StatusOK)
 	err = ImageWrite(w, oupImg)
 	if err != nil {
 		return webserver.StatusError{500, err}

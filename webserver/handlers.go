@@ -1,6 +1,6 @@
 package webserver
 
-// this setup is based on the following, awesome article:
+// this setup is based on the following, awesome articles:
 //https://elithrar.github.io/article/custom-handlers-avoiding-globals/
 
 import (

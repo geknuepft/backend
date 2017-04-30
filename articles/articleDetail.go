@@ -1,10 +1,11 @@
-package main
+package articles
 
 import (
 	"errors"
 	"gopkg.in/guregu/null.v3"
 	"log"
 	"strings"
+	"github.com/geknuepft/backend/sql"
 )
 
 type ArticleDetail struct {
@@ -72,7 +73,7 @@ func getArticleDetailByQs(qs string, qArgs interface{}) (articleDetail ArticleDe
 func getArticleDetailQs(where, orderBy string) (qs string) {
 	qs = `
         SELECT
-        -- article fields
+        -- articles fields
         a.article_id,
         COALESCE(a.article_name_de, cat.category_de) article_name,
         i0.path path0,
@@ -83,7 +84,7 @@ func getArticleDetailQs(where, orderBy string) (qs string) {
         i.height_mm,
         i.price_cchf,
         ic.collection_de
-        FROM article a
+        FROM articles a
         JOIN category          cat  ON(cat.category_id = a.category_id)
         JOIN image_type        it0  ON(it0.abbr = '` + picturePrefixes[0] + `')
         JOIN image             i0   ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
@@ -93,9 +94,9 @@ func getArticleDetailQs(where, orderBy string) (qs string) {
         JOIN material_x_color  mxc  ON(mxc.material_id = co.material_id)
         JOIN color             col  ON(col.color_id = mxc.color_id)
         JOIN color_cat         ccat ON(ccat.color_cat_id = col.color_cat_id)
-        ` + IfNotEmpty("WHERE ", where) + `
+        ` + sql.IfNotEmpty("WHERE ", where) + `
         GROUP BY a.article_id
-        ` + IfNotEmpty("ORDER BY ", orderBy)
+        ` + sql.IfNotEmpty("ORDER BY ", orderBy)
 
 	log.Printf("qs=%s", qs)
 

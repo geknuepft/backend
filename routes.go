@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/geknuepft/backend/image"
 	"github.com/geknuepft/backend/webserver"
+	"github.com/geknuepft/backend/articles"
 )
 
 var httpRoutes = webserver.HttpRoutes{
@@ -12,38 +13,36 @@ var httpRoutes = webserver.HttpRoutes{
 		"/",
 		webserver.HandleIndex,
 	},
-	/*
-	HttpRoute{
+	webserver.HttpRoute{
 		"ArticleIndex",
 		"GET",
 		"/v0/articles",
-		ArticleIndex,
+		articles.ArticleIndex,
 	},
-	HttpRoute{
+	webserver.HttpRoute{
 		"ArticleDetailById",
 		"GET",
-		"/v0/article/{ArticleId:[0-9]+}",
-		ArticleDetailById,
+		"/v0/articles/{ArticleId:[0-9]+}",
+		articles.ArticleDetailById,
 	},
-	HttpRoute{
+	webserver.HttpRoute{
 		"ArticleSearch",
 		"POST",
 		"/v0/articles",
-		ArticleSearch,
+		articles.ArticleSearch,
 	},
-	HttpRoute{
+	webserver.HttpRoute{
 		"FilterAll",
 		"GET",
 		"/v0/filters",
-		FilterAll,
+		articles.FilterAll,
 	},
-	HttpRoute{
+	webserver.HttpRoute{
 		"FilterById",
 		"GET",
 		"/v0/filter/{FilterId:[0-9]+}",
-		FilterById,
+		articles.FilterById,
 	},
-	*/
 	webserver.HttpRoute{
 		"Imgage",
 		"GET",

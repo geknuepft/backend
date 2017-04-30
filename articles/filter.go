@@ -1,4 +1,4 @@
-package main
+package articles
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"gopkg.in/guregu/null.v3"
 	"log"
 	"strconv"
+	"github.com/geknuepft/backend/sql"
 )
 
 type Filter struct {
@@ -110,7 +111,7 @@ func getFilterQs(where, orderBy string) (qs string) {
 	qs = "SELECT filter_id, filter_type, filter, filter_de, " +
 		"db_table, db_column, " +
 		"filter_range_id, range_geq, range_leq, " +
-		// filter_category fields
+	// filter_category fields
 		"COALESCE(category.category_id, color_cat.color_cat_id) filter_category_id, " +
 		"COALESCE(category.category_de, color_cat.color_cat_de) filter_category_de " +
 		"FROM filter f " +
@@ -118,8 +119,8 @@ func getFilterQs(where, orderBy string) (qs string) {
 		"LEFT JOIN filter_range USING(filter_id) " +
 		"LEFT JOIN category ON(f.db_table = 'category') " +
 		"LEFT JOIN color_cat ON(f.db_table = 'color_cat') " +
-		IfNotEmpty("WHERE ", where) + " " +
-		IfNotEmpty("ORDER BY ", orderBy)
+		sql.IfNotEmpty("WHERE ", where) + " " +
+		sql.IfNotEmpty("ORDER BY ", orderBy)
 
 	log.Printf("qs=%s", qs)
 

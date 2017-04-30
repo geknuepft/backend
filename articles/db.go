@@ -1,4 +1,4 @@
-package main
+package articles
 
 import (
 	"github.com/jmoiron/sqlx"
