@@ -49,7 +49,6 @@ type Handler struct {
 // ServeHTTP allows our Handler type to satisfy webserver.Handler.
 func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	err := handler.Handle(handler.Env, w, r)
-	log.Printf("err=%v", err)
 
 	if err != nil {
 		switch e := err.(type) {

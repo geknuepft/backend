@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"github.com/gorilla/mux"
 	"io/ioutil"
 	"io"
 	"github.com/geknuepft/backend/webserver"
@@ -20,18 +19,6 @@ func ArticleIndex(env *webserver.Environment, w http.ResponseWriter, r *http.Req
 
 	articles := GetArticlesByFilterValues(FilterValues{}, lengthMm)
 	return webserver.WriteJson(w, articles)
-}
-
-func ArticleDetailById(env *webserver.Environment, w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	var articleId int
-	var err error
-	if articleId, err = strconv.Atoi(vars["ArticleId"]); err != nil {
-		panic(err)
-	}
-
-	articleDetail, err := GetArticleDetailById(articleId)
-	return webserver.WriteJson(w, articleDetail)
 }
 
 func ArticleSearch(env *webserver.Environment, w http.ResponseWriter, r *http.Request) error {

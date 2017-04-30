@@ -13,10 +13,8 @@ type Article struct {
 	Id           int         `json:"article_id"    db:"article_id"`
 	Name         string      `json:"name"          db:"article_name"`
 	Pictures     PictureMap  `json:"pictures"`
-	LengthMm     int         `json:"length_mm"     db:"length_mm"`
 	WidthMm      null.Int    `json:"width_mm"      db:"width_mm"`
 	PriceCchf    null.Int    `json:"price_cchf"    db:"price_cchf"`
-	CollectionDe null.String `json:"collection_de" db:"collection_de"`
 }
 
 type ArticleRow struct {
@@ -92,12 +90,11 @@ func getArticleQs(where, orderBy string, lengthMm int) (qs string) {
 
 	qs = `
         SELECT
-        -- articles fields
+        -- article fields
         a.article_id,
         COALESCE(a.article_name_de, cat.category_de) article_name,
         i0.path path0,
         -- instance fields
-        ` + lengthMmStr + ` length_mm,
         ROUND(p.width_mm * AVG(pr.pattern_factor_width)) width_mm,
         ROUND(
           (
@@ -108,9 +105,8 @@ func getArticleQs(where, orderBy string, lengthMm int) (qs string) {
               0
             )
           ),-1
-        ) price_cchf,
-        ac.collection_de
-        FROM articles a
+        ) price_cchf
+        FROM article           a
         JOIN category          cat  ON(cat.category_id = a.category_id)
         JOIN image_type        it0  ON(it0.abbr = '` + picturePrefixes[0] + `')
         JOIN image             i0   ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
@@ -159,7 +155,7 @@ func getArticleWhereByFilter(filter Filter, filterValue FilterValue) (where stri
 	case "color_cat":
 		alias = "ccat"
 	default:
-		panic("articles: getArticleJoin: unknown table: " + filter.DbTable)
+		panic("article: getArticleJoin: unknown table: " + filter.DbTable)
 	}
 
 	// check that the FilterType is supported
@@ -183,7 +179,7 @@ func getArticleWhereByFilter(filter Filter, filterValue FilterValue) (where stri
 		}
 		where = "(" + strings.Join(qValues, " OR ") + ")"
 	default:
-		panic("articles: getArticleJoin: unsupported type: " + filter.FilterType)
+		panic("article: getArticleJoin: unsupported type: " + filter.FilterType)
 	}
 
 	return

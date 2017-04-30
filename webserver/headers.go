@@ -13,4 +13,3 @@ func WriteJpegHeaders(w http.ResponseWriter, status int) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Cache-Control", "public, max-age=604800") // 1 week
 }
-
