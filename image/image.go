@@ -15,7 +15,7 @@ func ImageGet(format int, path string) (oupImg *image.NRGBA, err error) {
 
 	inpDir := os.Getenv("IMAGE_INPUT_DIR")
 	if inpDir == "" {
-		log.Fatal("env variable IMAGE_INPUT_DIR must be set")
+		log.Print("env variable IMAGE_INPUT_DIR must be set")
 		return
 	}
 	filePath := inpDir + path
