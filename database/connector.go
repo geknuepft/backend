@@ -1,4 +1,4 @@
-package old
+package database
 
 import (
 	"github.com/jmoiron/sqlx"
@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func getDbX() (db *sqlx.DB) {
+func GetDbX() (db *sqlx.DB) {
 	var err error
 
 	mysql_host := os.Getenv("MYSQL_HOST")

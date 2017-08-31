@@ -6,7 +6,7 @@ import (
 	"gopkg.in/guregu/null.v3"
 	"log"
 	"strconv"
-	"github.com/geknuepft/backend/sql"
+	"github.com/geknuepft/backend/database"
 )
 
 type Filter struct {
@@ -119,8 +119,8 @@ func getFilterQs(where, orderBy string) (qs string) {
 		"LEFT JOIN filter_range USING(filter_id) " +
 		"LEFT JOIN category ON(f.db_table = 'category') " +
 		"LEFT JOIN color_cat ON(f.db_table = 'color_cat') " +
-		sql.IfNotEmpty("WHERE ", where) + " " +
-		sql.IfNotEmpty("ORDER BY ", orderBy)
+		database.IfNotEmpty("WHERE ", where) + " " +
+		database.IfNotEmpty("ORDER BY ", orderBy)
 
 	log.Printf("qs=%s", qs)
 

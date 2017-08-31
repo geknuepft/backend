@@ -5,7 +5,7 @@ import (
 	"gopkg.in/guregu/null.v3"
 	"log"
 	"strings"
-	"github.com/geknuepft/backend/sql"
+	"github.com/geknuepft/backend/database"
 )
 
 type ArticleDetail struct {
@@ -95,9 +95,9 @@ func getArticleDetailQs(where, orderBy string) (qs string) {
         JOIN material_x_color  mxc  ON(mxc.material_id = co.material_id)
         JOIN color             col  ON(col.color_id = mxc.color_id)
         JOIN color_cat         ccat ON(ccat.color_cat_id = col.color_cat_id)
-        ` + sql.IfNotEmpty("WHERE ", where) + `
+        ` + database.IfNotEmpty("WHERE ", where) + `
         GROUP BY a.article_id
-        ` + sql.IfNotEmpty("ORDER BY ", orderBy)
+        ` + database.IfNotEmpty("ORDER BY ", orderBy)
 
 	log.Printf("qs=%s", qs)
 
