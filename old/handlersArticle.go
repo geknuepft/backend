@@ -1,4 +1,4 @@
-package articles
+package old
 
 import (
 	"github.com/xeipuuv/gojsonschema"
@@ -42,7 +42,7 @@ func ArticleSearch(env *webserver.Environment, w http.ResponseWriter, r *http.Re
 	// check against json schema
 	schemaLoader := gojsonschema.NewStringLoader(`
 {
-    "title": "v0/articles/search Schema",
+    "title": "v0/old/search Schema",
     "type": "array",
     "items": {
         "type": "object",

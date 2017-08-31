@@ -1,12 +1,11 @@
 package webserver
 
-// this setup is based on the following, awesome articles:
+// this setup is based on the following, awesome old:
 //https://elithrar.github.io/article/custom-handlers-avoiding-globals/
 
 import (
 	"net/http"
 	"log"
-	"fmt"
 )
 
 // Our application wide data containers
@@ -68,7 +67,4 @@ func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func HandleIndex(env *Environment, w http.ResponseWriter, r *http.Request) error {
-	fmt.Fprint(w, "Welcome to the geknuepf backend server!\n")
-	return nil
-}
+

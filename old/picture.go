@@ -1,4 +1,4 @@
-package articles
+package old
 
 type Picture struct {
 	Path string `json:"path"`
