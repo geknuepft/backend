@@ -6,6 +6,7 @@ import (
 
 type Instance struct {
 	InstanceId   int         `json:"instance_id"   db:"instance_id"`
+	ArticleId    int         `json:"article_id"    db:"article_id"`
 	LengthMm     null.Int    `json:"length_mm"     db:"length_mm"`
 	WidthMm      null.Int    `json:"width_mm"      db:"width_mm"`
 	Picture0     null.String `json:"picture0"      db:"picture0"`

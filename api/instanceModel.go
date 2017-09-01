@@ -73,6 +73,7 @@ func getInstanceQs(where, orderBy string) (qs string) {
 	qs = `
 SELECT
   instance_id,
+  article_id,
   length_mm,
   width_mm,
   picture0,
@@ -90,6 +91,7 @@ FROM (
   FROM (
     SELECT
       i.instance_id,
+      i.article_id,
       i.length_mm,  -- go logs warning if this is null
       COALESCE(
         i.width_mm,
