@@ -20,9 +20,15 @@ var httpRoutes = webserver.HttpRoutes{
 		image.ImageHandleGet,
 	},
 	webserver.HttpRoute{
-		"InstnaceGet",
+		"InstanceGet",
 		"GET",
 		"/v0/Instance",
 		api.InstanceGet,
+	},
+	webserver.HttpRoute{
+		"InstanceDetailGet",
+		"GET",
+		"/v0/Instance/{InstanceId:[0-9]+}",
+		api.InstanceDetailGet,
 	},
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/geknuepft/backend/database"
 	"log"
 	"strings"
+	"errors"
 )
 
 func GetInstances() (instances []Instance) {
@@ -19,7 +20,25 @@ func GetInstances() (instances []Instance) {
 	)
 }
 
-type InstanceRow struct {
+func GetInstanceById(instanceId int) (instance Instance, err error) {
+	instances := getInstancesByQs(
+		getInstanceQs(
+			"i.instance_id = :instance_id",
+			"",
+		),
+		map[string]interface{}{"instance_id": instanceId},
+	)
+
+	if len(instances) < 1 {
+		err = errors.New("not found")
+		return
+	}
+
+	instance = instances[0]
+	return
+}
+
+type instanceRow struct {
 	Instance
 }
 
@@ -32,7 +51,7 @@ func getInstancesByQs(qs string, qArgs interface{}) (instances []Instance) {
 		log.Printf(err.Error())
 	}
 
-	var instanceRow = InstanceRow{}
+	var instanceRow = instanceRow{}
 
 	for rows.Next() {
 		err := rows.StructScan(&instanceRow)
@@ -56,7 +75,7 @@ SELECT
   instance_id,
   length_mm,
   width_mm,
-  path0,
+  picture0,
   price_cchf,
   calc_instance_discount_cchf(price_cchf) discount_cchf
 FROM (
@@ -77,8 +96,7 @@ FROM (
         ROUND(p.width_mm * AVG(pr.pattern_factor))
       ) width_mm,    -- go logs warning if this is null
       AVG(m.price_pp_cchf) price_pp_cchf,
-      COALESCE(a.article_de, cat.category_de) article_name,
-      i0.path path0,
+      i0.path picture0,
       i.created,
       p.pattern_id
     FROM instance          i
@@ -101,7 +119,7 @@ FROM (
 ) f1
 ` + database.IfNotEmpty("ORDER BY ", orderBy)
 
-	log.Printf("qs=%s", qs)
+	log.Printf("getInstanceQs qs=%s", qs)
 
 	return
 }
