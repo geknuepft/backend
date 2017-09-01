@@ -116,7 +116,7 @@ FROM (
     JOIN color_cat         ccat ON(ccat.color_cat_id = col.color_cat_id)
     ` + database.IfNotEmpty("WHERE ", where) + `
     GROUP BY i.instance_id
-    LIMIT 512
+    LIMIT 2048
   ) f0
 ) f1
 ` + database.IfNotEmpty("ORDER BY ", orderBy)
