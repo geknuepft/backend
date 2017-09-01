@@ -13,7 +13,7 @@ func GetInstances() (instances []Instance) {
 	return getInstancesByQs(
 		getInstanceQs(
 			where,
-			"i.created DESC, i.instance_id ASC",
+			"created DESC, instance_id ASC",
 		),
 		qArgs,
 	)
