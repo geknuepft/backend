@@ -14,8 +14,21 @@ type Instance struct {
 	DiscountCchf null.Int    `json:"discountCchf" db:"discount_cchf"`
 }
 
+type InstanceColor struct {
+	ColorId   int            `json:"colorId"      db:"color_id"`
+	ColorName null.String    `json:"colorName"    db:"color_name"`
+	CatName   null.String    `json:"catName"      db:"cat_name"`
+	Hex       null.String    `json:"hex"          db:"hex"`
+}
+
 type InstanceDetailSpecifics struct {
-	ArticleName null.String `json:"articleName"   db:"article_name"`
+	PatternId   null.Int        `json:"patternId"     db:"pattern_id"`
+	ArticleName null.String     `json:"articleName"   db:"article_name"`
+	ArticleDesc null.String     `json:"articleDesc"   db:"article_desc"`
+	HeightMm    null.Int        `json:"heightMm"      db:"height_mm"`
+	NumbStrings null.Int        `json:"numbStrings"   db:"numb_strings"`
+	Colors      []InstanceColor `json:"colors"`
+	GarnType    null.String     `json:"garnType"      db:"garn_type"`
 }
 
 type InstanceDetail struct {
