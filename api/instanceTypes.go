@@ -6,7 +6,7 @@ import (
 
 type Instance struct {
 	InstanceId   int         `json:"instanceId"   db:"instance_id"`
-	ArticleId    int         `json:"articleId"    db:"article_id"`
+	ArticleName  null.String `json:"articleName"  db:"article_name"`
 	LengthMm     null.Int    `json:"lengthMm"     db:"length_mm"`
 	WidthMm      null.Int    `json:"widthMm"      db:"width_mm"`
 	Picture0     null.String `json:"picture0"     db:"picture0"`
@@ -27,8 +27,8 @@ type InstanceImage struct {
 }
 
 type InstanceDetailSpecifics struct {
+	ArticleId   int             `json:"articleId"     db:"article_id"`
 	PatternId   null.Int        `json:"patternId"     db:"pattern_id"`
-	ArticleName null.String     `json:"articleName"   db:"article_name"`
 	ArticleDesc null.String     `json:"articleDesc"   db:"article_desc"`
 	HeightMm    null.Int        `json:"heightMm"      db:"height_mm"`
 	NumbStrings null.Int        `json:"numbStrings"   db:"numb_strings"`

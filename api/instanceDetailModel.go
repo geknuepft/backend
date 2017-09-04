@@ -25,8 +25,8 @@ func GetInstanceDetailById(instanceId int) (instanceDetail InstanceDetail, err e
 func getInstanceDetailQs(where, orderBy string) (qs string) {
 	qs = `
   SELECT
+      a.article_id,
       p.pattern_id,
-      COALESCE(a.article_de, cat.category_de) article_name,
       a.article_desc_de                       article_desc,
       i.height_mm,
       p.numb_strings,
