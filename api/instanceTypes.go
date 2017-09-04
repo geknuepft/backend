@@ -21,6 +21,11 @@ type InstanceColor struct {
 	Hex       null.String    `json:"hex"          db:"hex"`
 }
 
+type InstanceImage struct {
+	ImageType null.String    `json:"imageType"    db:"image_type"`
+	Path      string         `json:"path"         db:"path"`
+}
+
 type InstanceDetailSpecifics struct {
 	PatternId   null.Int        `json:"patternId"     db:"pattern_id"`
 	ArticleName null.String     `json:"articleName"   db:"article_name"`
@@ -29,6 +34,7 @@ type InstanceDetailSpecifics struct {
 	NumbStrings null.Int        `json:"numbStrings"   db:"numb_strings"`
 	Colors      []InstanceColor `json:"colors"`
 	GarnType    null.String     `json:"garnType"      db:"garn_type"`
+	Images      []InstanceImage `json:"images"`
 }
 
 type InstanceDetail struct {

@@ -52,27 +52,6 @@ func getInstanceDetailQs(where, orderBy string) (qs string) {
 	return
 }
 
-func getColorsQs() (qs string) {
-
-	qs = `
-SELECT
-  col.color_id               color_id,
-  col.color_de               color_name,
-  ccat.color_cat_de          cat_name,
-  COALESCE(col.hex,ccat.hex) hex
-FROM instance          i
-JOIN article           a    ON(a.article_id = i.article_id)
-JOIN component         co   ON(co.article_id = a.article_id)
-JOIN material          m    ON(m.material_id = co.material_id)
-JOIN material_x_color  mxc  ON(mxc.material_id = co.material_id)
-JOIN color             col  ON(col.color_id = mxc.color_id)
-JOIN color_cat         ccat ON(ccat.color_cat_id = col.color_cat_id)
-WHERE i.instance_id = :instance_id
-ORDER BY co.position ASC`
-
-	return
-}
-
 func getInstanceDetailSpecifics(qs string, qArgs interface{}) (instanceDetailSpecifics InstanceDetailSpecifics, err error) {
 	var db = database.GetDbX()
 	defer db.Close()
@@ -93,6 +72,27 @@ func getInstanceDetailSpecifics(qs string, qArgs interface{}) (instanceDetailSpe
 		log.Printf(dbErr.Error())
 		return
 	}
+
+	return
+}
+
+func getColorsQs() (qs string) {
+
+	qs = `
+SELECT
+  col.color_id               color_id,
+  col.color_de               color_name,
+  ccat.color_cat_de          cat_name,
+  COALESCE(col.hex,ccat.hex) hex
+FROM instance          i
+JOIN article           a    ON(a.article_id = i.article_id)
+JOIN component         co   ON(co.article_id = a.article_id)
+JOIN material          m    ON(m.material_id = co.material_id)
+JOIN material_x_color  mxc  ON(mxc.material_id = co.material_id)
+JOIN color             col  ON(col.color_id = mxc.color_id)
+JOIN color_cat         ccat ON(ccat.color_cat_id = col.color_cat_id)
+WHERE i.instance_id = :instance_id
+ORDER BY co.position ASC`
 
 	return
 }
@@ -123,6 +123,48 @@ func getColors(instanceId int) (instanceColors []InstanceColor, err error) {
 	return
 }
 
+func getImagesQs() (qs string) {
+
+	qs = `
+SELECT
+  it.image_type_de image_type,
+  im.path
+FROM instance          i
+JOIN article           a    ON(a.article_id = i.article_id)
+JOIN image             im   ON(im.article_id = a.article_id)
+JOIN image_type        it   ON(it.image_type_id = im.image_type_id)
+WHERE i.instance_id = :instance_id AND it.gallery
+ORDER BY it.image_type_id ASC`
+
+	return
+}
+
+func getImages(instanceId int) (instanceImages []InstanceImage, err error) {
+	var db = database.GetDbX()
+	defer db.Close()
+
+	// fetch instance details
+	rows, dbErr := db.NamedQuery(getImagesQs(), map[string]interface{}{"instance_id": instanceId})
+	if dbErr != nil {
+		log.Printf(dbErr.Error())
+		return
+	}
+
+	var instanceImage = InstanceImage{}
+
+	for rows.Next() {
+		err := rows.StructScan(&instanceImage)
+		if err != nil {
+			log.Printf(err.Error())
+			break
+		}
+
+		instanceImages = append(instanceImages, instanceImage)
+	}
+
+	return
+}
+
 func getInstanceDetailByQs(instance Instance, qs string, qArgs interface{}) (instanceDetail InstanceDetail, err error) {
 	var db = database.GetDbX()
 	defer db.Close()
@@ -143,6 +185,10 @@ func getInstanceDetailByQs(instance Instance, qs string, qArgs interface{}) (ins
 	}
 
 	// fetch pictures
+	instanceDetail.Images, err = getImages(instance.InstanceId)
+	if (err != nil) {
+		return
+	}
 
 	return
 }
