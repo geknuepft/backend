@@ -31,4 +31,10 @@ var httpRoutes = webserver.HttpRoutes{
 		"/v0/Instance/{InstanceId:[0-9]+}",
 		api.InstanceDetailGet,
 	},
+	webserver.HttpRoute{
+		"ColorCatGet",
+		"GET",
+		"/v0/ColorCat",
+		api.ColorCatGet,
+	},
 }
