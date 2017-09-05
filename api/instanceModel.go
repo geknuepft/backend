@@ -103,18 +103,18 @@ FROM (
       i.created,
       p.pattern_id
     FROM instance          i
-    JOIN article           a    ON(a.article_id = i.article_id)
-    JOIN pattern           p    ON(p.pattern_id = a.pattern_id)
-    JOIN category          cat  ON(cat.category_id = a.category_id)
-    JOIN image_type        it0  ON(it0.abbr = 'cma0')
-    JOIN image             i0   ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
-    JOIN collection        ac   ON(ac.collection_id = a.collection_id)
-    JOIN component         co   ON(co.article_id = a.article_id)
-    JOIN material          m    ON(m.material_id = co.material_id)
-    JOIN product           pr   ON(pr.product_id = m.product_id)
-    JOIN material_x_color  mxc  ON(mxc.material_id = co.material_id)
-    JOIN color             col  ON(col.color_id = mxc.color_id)
-    JOIN color_cat         ccat ON(ccat.color_cat_id = col.color_cat_id)
+         JOIN article           a    ON(a.article_id = i.article_id)
+         JOIN pattern           p    ON(p.pattern_id = a.pattern_id)
+         JOIN category          cat  ON(cat.category_id = a.category_id)
+         JOIN image_type        it0  ON(it0.abbr = 'cma0')
+         JOIN image             i0   ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
+    LEFT JOIN collection   ac   ON(ac.collection_id = a.collection_id)
+         JOIN component         co   ON(co.article_id = a.article_id)
+         JOIN material          m    ON(m.material_id = co.material_id)
+         JOIN product           pr   ON(pr.product_id = m.product_id)
+         JOIN material_x_color  mxc  ON(mxc.material_id = co.material_id)
+         JOIN color             col  ON(col.color_id = mxc.color_id)
+         JOIN color_cat         ccat ON(ccat.color_cat_id = col.color_cat_id)
     ` + database.IfNotEmpty("WHERE ", where) + `
     GROUP BY i.instance_id
     LIMIT 2048
