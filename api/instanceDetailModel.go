@@ -79,7 +79,7 @@ func getInstanceDetailSpecifics(qs string, qArgs interface{}) (instanceDetailSpe
 func getColorsQs() (qs string) {
 
 	qs = `
-SELECT
+SELECT DISTINCT
   col.color_id               color_id,
   col.color_de               color_name,
   ccat.color_cat_de          cat_name,
