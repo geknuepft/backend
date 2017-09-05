@@ -9,6 +9,7 @@ import (
 func getColorCatQs() (qs string) {
 	qs = `
   SELECT
+      color_cat_id,
       color_cat_de name,
       hex
   FROM color_cat
