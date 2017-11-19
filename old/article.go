@@ -97,7 +97,7 @@ func getArticleQs(where, orderBy string, lengthMm int) (qs string) {
         ) price_cchf
         FROM article           a
         JOIN category          cat  ON(cat.category_id = a.category_id)
-        JOIN image_type        it0  ON(it0.abbr = 'cma0')
+        JOIN image_type        it0  ON(it0.image_type = 'square-narrow_white_single_plan_setup0')
         JOIN image             i0   ON(i0.article_id = a.article_id AND i0.image_type_id = it0.image_type_id)
         JOIN collection        ac   ON(ac.collection_id = a.collection_id)
         JOIN component         co   ON(co.article_id = a.article_id)

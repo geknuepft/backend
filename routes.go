@@ -16,7 +16,7 @@ var httpRoutes = webserver.HttpRoutes{
 	webserver.HttpRoute{
 		"Imgage",
 		"GET",
-		"/v0/Image/{format}p/{Path:[a-zA-Z0-9/_]+}/{FileName:[a-zA-Z0-9_]+.(?:JPG|jpg)}",
+		"/v0/Image/{format}p/{Path:[a-zA-Z0-9\\-/_]+}/{FileName:[a-zA-Z0-9_]+.(?:JPG|jpg)}",
 		image.ImageHandleGet,
 	},
 	webserver.HttpRoute{
