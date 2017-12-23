@@ -133,5 +133,17 @@ func getInstanceWhere() (wheres []string, qArgs map[string]interface{}) {
 	wheres = append(wheres, "cat.abbr IN('A','S','B','H','T','E','AP','F','FP')")
 	wheres = append(wheres, "i.length_mm IS NOT NULL")
 
+	wheres = append(wheres, `i.instance_id IN(
+		SELECT
+	i.instance_id
+	FROM instance          i
+	JOIN article           a    ON(a.article_id = i.article_id)
+	JOIN image             im   ON(im.article_id = a.article_id)
+	JOIN image_type        it   ON(it.image_type_id = im.image_type_id)
+	WHERE it.gallery
+	GROUP BY i.instance_id
+	HAVING COUNT(im.image_id) > 1
+	)`)
+
 	return
 }
