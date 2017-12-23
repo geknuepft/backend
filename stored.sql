@@ -15,6 +15,8 @@ DETERMINISTIC
   BEGIN
     DECLARE ret_ INT(10) UNSIGNED;
 
+    -- todo: implement case where length_mm > 180
+
     SELECT ROUND(
         (p.price_cchf                                       -- base price
          + p.price_cchf_cm2 * _length_mm * _width_mm / 100  -- price per area
