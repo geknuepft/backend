@@ -36,7 +36,8 @@ func ImageHandleGet(env *webserver.Environment, w http.ResponseWriter, r *http.R
 	// check if StatusNotModified can be answered
 	lastModified := GetLastModified(fileInfo)
 	if CheckIfModifiedSince(r, lastModified) {
-		return webserver.StatusError{http.StatusNotModified, errors.New("not modified")}
+		w.WriteHeader(http.StatusNotModified)
+		return nil
 	}
 
 	oupImg, err := ImageGet(format, filePath)
