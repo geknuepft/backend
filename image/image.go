@@ -9,18 +9,32 @@ import (
 
 	"github.com/disintegration/imaging"
 	"github.com/rwcarlsen/goexif/exif"
+	"strconv"
 )
 
-func ImageGet(format int, path string) (oupImg *image.NRGBA, err error) {
+var ImageInputDir string
+var MaxAge int
 
-	inpDir := os.Getenv("IMAGE_INPUT_DIR")
-	if inpDir == "" {
-		log.Print("env variable IMAGE_INPUT_DIR must be set")
+func init() {
+	var err error
+
+	ImageInputDir = os.Getenv("IMAGE_INPUT_DIR")
+	if ImageInputDir == "" {
+		log.Fatal("env variable IMAGE_INPUT_DIR must be set")
 		return
 	}
-	filePath := inpDir + path
-	log.Printf("reading %v", filePath)
 
+	MaxAge, err = strconv.Atoi(os.Getenv("MAX_AGE"))
+	if err != nil {
+		MaxAge = 0
+	}
+
+	log.Print("image configuration:")
+	log.Printf("  ImageInputDir=%v", ImageInputDir)
+	log.Printf("  MaxAge=%v", MaxAge)
+}
+
+func ImageGet(format int, filePath string) (oupImg *image.NRGBA, err error) {
 	inpImgF, err := os.Open(filePath)
 	if err != nil {
 		return
