@@ -7,18 +7,22 @@ import (
 	"os"
 )
 
-func GetDbX() (db *sqlx.DB) {
+var dbPoolHandle *sqlx.DB
+
+func init() {
 	var err error
 
 	mysql_host := os.Getenv("MYSQL_HOST")
 
-	db, err = sqlx.Connect(
+	dbPoolHandle, err = sqlx.Connect(
 		"mysql",
 		"geknuepft:Er3cof4iesho@tcp("+mysql_host+":3306)/geknuepft",
- 	)
+	)
 	if err != nil {
 		panic(err.Error())
 	}
+}
 
-	return
+func GetDbX() (db *sqlx.DB) {
+	return dbPoolHandle
 }

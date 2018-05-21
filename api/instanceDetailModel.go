@@ -54,10 +54,10 @@ func getInstanceDetailQs(where, orderBy string) (qs string) {
 
 func getInstanceDetailSpecifics(qs string, qArgs interface{}) (instanceDetailSpecifics InstanceDetailSpecifics, err error) {
 	var db = database.GetDbX()
-	defer db.Close()
 
 	// fetch instance details
 	rows, dbErr := db.NamedQuery(qs, qArgs)
+	defer rows.Close()
 	if dbErr != nil {
 		log.Printf(dbErr.Error())
 		return
@@ -99,10 +99,11 @@ ORDER BY co.position ASC`
 
 func getColors(instanceId int) (instanceColors []InstanceColor, err error) {
 	var db = database.GetDbX()
-	defer db.Close()
 
 	// fetch instance details
 	rows, dbErr := db.NamedQuery(getColorsQs(), map[string]interface{}{"instance_id": instanceId})
+	defer rows.Close()
+
 	if dbErr != nil {
 		log.Printf(dbErr.Error())
 		return
@@ -141,10 +142,11 @@ ORDER BY it.image_type_id ASC`
 
 func getImages(instanceId int) (instanceImages []InstanceImage, err error) {
 	var db = database.GetDbX()
-	defer db.Close()
 
 	// fetch instance details
 	rows, dbErr := db.NamedQuery(getImagesQs(), map[string]interface{}{"instance_id": instanceId})
+	defer rows.Close()
+
 	if dbErr != nil {
 		log.Printf(dbErr.Error())
 		return
@@ -166,9 +168,6 @@ func getImages(instanceId int) (instanceImages []InstanceImage, err error) {
 }
 
 func getInstanceDetailByQs(instance Instance, qs string, qArgs interface{}) (instanceDetail InstanceDetail, err error) {
-	var db = database.GetDbX()
-	defer db.Close()
-
 	// use general instance query data
 	instanceDetail.Instance = instance
 

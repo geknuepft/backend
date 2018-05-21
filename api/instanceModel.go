@@ -44,9 +44,11 @@ type instanceRow struct {
 
 func getInstancesByQs(qs string, qArgs interface{}) (instances []Instance) {
 	var db = database.GetDbX()
-	defer db.Close()
 
+	log.Print("GetDbx")
 	rows, err := db.NamedQuery(qs, qArgs)
+	defer rows.Close()
+
 	if err != nil {
 		log.Printf(err.Error())
 	}

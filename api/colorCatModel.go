@@ -20,10 +20,11 @@ func getColorCatQs() (qs string) {
 
 func getColorCats() (colorCats []ColorCat, err error) {
 	var db = database.GetDbX()
-	defer db.Close()
 
 	// fetch instance details
 	rows, dbErr := db.NamedQuery(getColorCatQs(), map[string]interface{}{})
+	defer rows.Close()
+
 	if dbErr != nil {
 		log.Printf(dbErr.Error())
 		return
